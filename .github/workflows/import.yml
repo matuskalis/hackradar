@@ -1,0 +1,31 @@
+name: Import hackathons
+
+on:
+  schedule:
+    # Daily at 04:17 UTC. The odd minute keeps us off the top-of-hour rush.
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        source: [mlh, hackclub]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Import ${{ matrix.source }}
+        run: npm run import -- ${{ matrix.source }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
