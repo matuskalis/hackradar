@@ -1,9 +1,19 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Inter } from 'next/font/google'
+import { Archivo, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ variable: '--font-inter', subsets: ['latin', 'latin-ext'] })
+const archivo = Archivo({
+  variable: '--font-archivo',
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700'],
+})
+
+const mono = JetBrains_Mono({
+  variable: '--font-mono-data',
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '700'],
+})
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
@@ -19,14 +29,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="sk" className={`${inter.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-white text-stone-900">
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-stone-200 px-4">
-          <Link href="/" className="font-semibold tracking-tight">
-            Hack<span className="text-orange-600">Radar</span>
+    <html lang="sk" className={`${archivo.variable} ${mono.variable} h-full`}>
+      <body className="flex min-h-full flex-col antialiased">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-bar px-4 text-bar-ink">
+          <Link
+            href="/"
+            className="text-lg font-bold uppercase tracking-[0.18em] focus-visible:outline-offset-4"
+          >
+            Hack<span className="text-accent">Radar</span>
           </Link>
-          <nav className="flex items-center gap-4 text-sm text-stone-600">
-            <Link href="/pridat" className="hover:text-stone-900">
+
+          <nav>
+            <Link
+              href="/pridat"
+              className="border border-bar-ink/40 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:bg-accent hover:border-accent"
+            >
               Pridať hackathon
             </Link>
           </nav>

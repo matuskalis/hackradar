@@ -14,9 +14,11 @@ const COUNTRIES = {
   DE: 'Nemecko',
 } as const
 
-const field =
-  'w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-orange-600'
-const label = 'text-xs font-semibold uppercase tracking-wide text-stone-500'
+const field = 'w-full border border-line bg-ground px-3 py-2 text-sm text-ink'
+const label = 'label'
+const chip =
+  'border border-line px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted transition-colors hover:border-ink hover:text-ink'
+const chipOn = 'border-ink bg-ink text-ground hover:bg-ink hover:text-ground'
 
 /** Local datetime from the form, plus the browser offset the visitor typed in. */
 function toIso(value: string): string {
@@ -89,9 +91,9 @@ export function SubmitForm() {
 
   if (state === 'sent') {
     return (
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-6">
-        <h2 className="font-semibold text-emerald-900">Ďakujeme.</h2>
-        <p className="mt-1 text-sm text-emerald-800">
+      <div className="border-l-4 border-accent bg-ink p-6 text-ground">
+        <h2 className="text-2xl font-bold tracking-tight">Ďakujeme.</h2>
+        <p className="mt-2 max-w-[46ch] text-sm opacity-80">
           Hackathon sme prijali. Pozrieme ho a po schválení sa objaví na mape.
         </p>
       </div>
@@ -137,12 +139,7 @@ export function SubmitForm() {
               key={slug}
               type="button"
               onClick={() => setFormat(slug as typeof format)}
-              className={cn(
-                'rounded-full border px-3 py-1 text-sm',
-                format === slug
-                  ? 'border-orange-600 bg-orange-600 text-white'
-                  : 'border-stone-300 text-stone-700'
-              )}
+              className={cn(chip, format === slug && chipOn)}
             >
               {text}
             </button>
@@ -230,12 +227,7 @@ export function SubmitForm() {
                         : current
                   )
                 }
-                className={cn(
-                  'rounded-full border px-3 py-1 text-sm',
-                  active
-                    ? 'border-orange-600 bg-orange-600 text-white'
-                    : 'border-stone-300 text-stone-700'
-                )}
+                className={cn(chip, active && chipOn)}
               >
                 {THEMES[slug]}
               </button>
@@ -285,7 +277,7 @@ export function SubmitForm() {
       </div>
 
       {errors.length > 0 && (
-        <ul className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <ul className="border-l-4 border-accent bg-ink p-3 text-sm text-ground">
           {errors.map((message) => (
             <li key={message}>{message}</li>
           ))}
@@ -295,7 +287,7 @@ export function SubmitForm() {
       <button
         type="submit"
         disabled={state === 'sending'}
-        className="self-start rounded-md bg-orange-600 px-4 py-2 font-medium text-white hover:bg-orange-700 disabled:opacity-60"
+        className="self-start bg-accent px-5 py-3 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
       >
         {state === 'sending' ? 'Odosielam…' : 'Odoslať na schválenie'}
       </button>

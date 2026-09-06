@@ -24,11 +24,22 @@ type Props = {
   onSelect: (id: string) => void
   onHover: (id: string | null) => void
   onUserMove: (bbox: Bbox) => void
+  /** Detail pages show one venue: no controls, no panning, no interaction. */
+  readOnly?: boolean
 }
 
-const STYLE_URL =
+const LIGHT_STYLE =
   process.env.NEXT_PUBLIC_MAP_STYLE_URL ??
   'https://tiles.openfreemap.org/styles/liberty'
+const DARK_STYLE =
+  process.env.NEXT_PUBLIC_MAP_STYLE_DARK_URL ??
+  'https://tiles.openfreemap.org/styles/dark'
+
+const DARK_QUERY = '(prefers-color-scheme: dark)'
+
+function prefersDark(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia(DARK_QUERY).matches
+}
 
 const MOVE_DEBOUNCE_MS = 400
 const PIN_LAYERS = ['venue-pins', 'city-areas']
@@ -42,6 +53,7 @@ export default function HackMap({
   onSelect,
   onHover,
   onUserMove,
+  readOnly = false,
 }: Props) {
   const container = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
@@ -54,8 +66,10 @@ export default function HackMap({
 
   // Callbacks change every render in the parent; keep them out of the effect deps.
   const handlers = useRef({ onSelect, onHover, onUserMove })
+  const itemsRef = useRef(items)
   useEffect(() => {
     handlers.current = { onSelect, onHover, onUserMove }
+    itemsRef.current = items
   })
 
   const setState = useCallback(
@@ -82,20 +96,32 @@ export default function HackMap({
 
     const instance = new maplibregl.Map({
       container: container.current,
-      style: STYLE_URL,
+      style: prefersDark() ? DARK_STYLE : LIGHT_STYLE,
       center: [center.lng, center.lat],
       zoom,
       maxBounds: [
         [-13, 33],
         [45, 72],
       ],
+      interactive: !readOnly,
+      attributionControl: { compact: true },
     })
     map.current = instance
 
-    instance.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
-    instance.addControl(new maplibregl.GeolocateControl({ trackUserLocation: false }), 'top-right')
+    if (!readOnly) {
+      instance.addControl(
+        new maplibregl.NavigationControl({ showCompass: false }),
+        'top-right'
+      )
+      instance.addControl(
+        new maplibregl.GeolocateControl({ trackUserLocation: false }),
+        'top-right'
+      )
+    }
 
-    instance.on('load', () => {
+    // Switching the base style drops every custom source and layer, so the
+    // same setup runs on first load and again after each style swap.
+    const addOwnLayers = () => {
       const empty: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
 
       instance.addSource('venues', {
@@ -115,10 +141,20 @@ export default function HackMap({
       instance.addLayer(venuePinLayer)
 
       ready.current = true
-      const { venues, cities } = toSources(items)
+      const { venues, cities } = toSources(itemsRef.current)
       ;(instance.getSource('venues') as maplibregl.GeoJSONSource).setData(venues)
       ;(instance.getSource('cities') as maplibregl.GeoJSONSource).setData(cities)
-    })
+    }
+
+    instance.on('load', addOwnLayers)
+
+    const media = window.matchMedia(DARK_QUERY)
+    const onThemeChange = (event: MediaQueryListEvent) => {
+      ready.current = false
+      instance.setStyle(event.matches ? DARK_STYLE : LIGHT_STYLE)
+      instance.once('styledata', addOwnLayers)
+    }
+    media.addEventListener('change', onThemeChange)
 
     instance.on('click', 'clusters', async (event: MapLayerMouseEvent) => {
       const feature = event.features?.[0]
@@ -176,6 +212,7 @@ export default function HackMap({
     observer.observe(container.current)
 
     return () => {
+      media.removeEventListener('change', onThemeChange)
       observer.disconnect()
       if (moveTimer.current) clearTimeout(moveTimer.current)
       instance.remove()
@@ -226,8 +263,10 @@ export default function HackMap({
 
 export function MapSkeleton() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-stone-100 text-sm text-stone-500">
-      Načítavam mapu…
+    <div className="flex h-full w-full items-center justify-center bg-ink/[0.04]">
+      <span className="data animate-pulse text-[11px] uppercase tracking-[0.14em] text-muted">
+        Načítavam mapu
+      </span>
     </div>
   )
 }

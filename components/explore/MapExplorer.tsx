@@ -109,7 +109,7 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
     : [
         search.mode === 'radius'
           ? `${nearbyCount} v okolí ${label}`
-          : `${nearbyCount} vo výreze mapy`,
+          : `${nearbyCount} vo výreze`,
         onlineCount > 0 ? `${onlineCount} online` : null,
       ]
         .filter(Boolean)
@@ -126,11 +126,11 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col md:flex-row">
       <section
         className={cn(
-          'flex min-h-0 flex-col border-stone-200 md:max-w-md md:flex-1 md:border-r',
+          'flex min-h-0 flex-col border-line md:max-w-md md:flex-1 md:border-r',
           mobileTab === 'list' ? 'flex-1' : 'flex-none'
         )}
       >
-        <div className="flex flex-col gap-3 border-b border-stone-200 p-4">
+        <div className="flex flex-col gap-3 border-b border-line p-4">
           <CitySearch
             onPick={(place) => {
               setCenter({ lat: place.lat, lng: place.lng })
@@ -146,13 +146,13 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
                 type="button"
                 onClick={geo.request}
                 disabled={geo.status === 'loading' || geo.status === 'unsupported'}
-                className="rounded-md bg-stone-900 px-3 py-1.5 text-white disabled:opacity-50"
+                className="bg-ink px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-ground disabled:opacity-40"
               >
-                {geo.status === 'loading' ? 'Zisťujem polohu…' : 'Použiť moju polohu'}
+                {geo.status === 'loading' ? 'Zisťujem polohu…' : 'Moja poloha'}
               </button>
             )}
             {geo.status === 'denied' && (
-              <span className="text-stone-500">
+              <span className="text-[11px] uppercase tracking-[0.08em] text-muted">
                 Poloha zamietnutá, zobrazujem {initialLabel}.
               </span>
             )}
@@ -160,16 +160,16 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
               <button
                 type="button"
                 onClick={backToCenter}
-                className="rounded-full border border-stone-300 px-3 py-1 text-stone-700"
+                className="border border-line px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-ink hover:border-ink"
               >
-                Späť na {label}
+                ← {label}
               </button>
             )}
             <button
               type="button"
               onClick={() => setFiltersOpen((open) => !open)}
               aria-expanded={filtersOpen}
-              className="rounded-full border border-stone-300 px-3 py-1 text-stone-700 md:hidden"
+              className="border border-line px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-ink md:hidden"
             >
               {filtersOpen ? 'Skryť filtre' : 'Filtre'}
             </button>
@@ -191,18 +191,29 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
 
         <div
           className={cn(
-            'items-center justify-between px-4 py-2 text-sm text-stone-600 md:flex',
+            'relative items-center justify-between border-b border-line px-4 py-2 md:flex',
             mobileTab === 'list' ? 'flex' : 'hidden'
           )}
         >
-          <span>{summary}</span>
-          <Link href="/pridat" className="text-orange-700 underline underline-offset-2">
-            Pridať hackathon
+          {loading && (
+            <span
+              aria-hidden
+              className="absolute inset-x-0 top-0 h-0.5 animate-pulse bg-accent"
+            />
+          )}
+          <span className="data text-[11px] uppercase tracking-[0.1em] text-ink">
+            {summary}
+          </span>
+          <Link
+            href="/pridat"
+            className="text-[11px] font-bold uppercase tracking-[0.1em] text-accent underline underline-offset-4"
+          >
+            Pridať
           </Link>
         </div>
 
         {error && (
-          <p className="border-y border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800">
+          <p className="border-l-4 border-accent bg-ink px-4 py-3 text-sm text-ground">
             {error}
           </p>
         )}
@@ -242,15 +253,15 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
         />
       </section>
 
-      <div className="flex border-t border-stone-200 bg-white md:hidden">
+      <div className="flex border-t border-line bg-ground md:hidden">
         {(['map', 'list'] as const).map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setMobileTab(tab)}
             className={cn(
-              'flex-1 py-3 text-sm font-medium',
-              mobileTab === tab ? 'bg-stone-900 text-white' : 'text-stone-600'
+              'flex-1 py-3 text-xs font-bold uppercase tracking-[0.12em] transition-colors',
+              mobileTab === tab ? 'bg-ink text-ground' : 'text-muted'
             )}
           >
             {tab === 'map' ? 'Mapa' : `Zoznam (${items.length})`}

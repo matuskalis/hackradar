@@ -1,10 +1,14 @@
 import type { CircleLayerSpecification, SymbolLayerSpecification } from 'maplibre-gl'
 
-/** Format colours are also used by the list, so pins and cards agree. */
+/**
+ * Format colours, mirroring the --color-onsite/hybrid/online tokens in
+ * globals.css. MapLibre paint expressions cannot read CSS variables, so the
+ * values are repeated here and must be changed in both places together.
+ */
 export const FORMAT_COLORS = {
-  onsite: '#d9541e',
-  hybrid: '#7a5cc4',
-  online: '#2f7d8a',
+  onsite: '#ff3b00',
+  hybrid: '#7a00ff',
+  online: '#0057ff',
 } as const
 
 export const clusterLayer: CircleLayerSpecification = {
@@ -13,11 +17,11 @@ export const clusterLayer: CircleLayerSpecification = {
   source: 'venues',
   filter: ['has', 'point_count'],
   paint: {
-    'circle-color': '#d9541e',
-    'circle-opacity': 0.85,
-    'circle-radius': ['step', ['get', 'point_count'], 16, 5, 22, 20, 30],
+    'circle-color': '#0a0a0a',
+    'circle-opacity': 0.92,
+    'circle-radius': ['step', ['get', 'point_count'], 15, 5, 20, 20, 27],
     'circle-stroke-width': 2,
-    'circle-stroke-color': '#ffffff',
+    'circle-stroke-color': '#ff3b00',
   },
 }
 
@@ -29,7 +33,7 @@ export const clusterCountLayer: SymbolLayerSpecification = {
   layout: {
     'text-field': ['get', 'point_count_abbreviated'],
     'text-font': ['Noto Sans Bold'],
-    'text-size': 13,
+    'text-size': 12,
     'text-allow-overlap': true,
   },
   paint: { 'text-color': '#ffffff' },
@@ -59,7 +63,7 @@ export const venuePinLayer: CircleLayerSpecification = {
       ['boolean', ['feature-state', 'selected'], false], 3,
       2,
     ],
-    'circle-stroke-color': '#ffffff',
+    'circle-stroke-color': '#0a0a0a',
   },
 }
 
@@ -101,9 +105,9 @@ export const cityDotLayer: CircleLayerSpecification = {
   type: 'circle',
   source: 'cities',
   paint: {
-    'circle-color': '#ffffff',
-    'circle-radius': 2.5,
+    'circle-color': '#0a0a0a',
+    'circle-radius': 2,
     'circle-stroke-width': 1,
-    'circle-stroke-color': '#4a5462',
+    'circle-stroke-color': '#ffffff',
   },
 }

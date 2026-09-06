@@ -79,23 +79,23 @@ export function CitySearch({ onPick }: Props) {
         }}
         placeholder="Zadajte mesto"
         aria-label="Vyhľadať mesto"
-        className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-orange-600"
+        className="w-full border border-line bg-ground px-3 py-2 text-sm text-ink placeholder:text-muted"
       />
 
       {open && !tooShort && results.length > 0 && (
-        <ul className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border border-stone-200 bg-white shadow-lg">
+        <ul className="absolute z-20 w-full border border-ink bg-ground shadow-[4px_4px_0_var(--color-ink)]">
           {results.map((place, index) => (
             <li key={`${place.name}-${place.lat}-${place.lng}`}>
               <button
                 type="button"
                 onMouseEnter={() => setActive(index)}
                 onClick={() => pick(place)}
-                className={`flex w-full flex-col items-start px-3 py-2 text-left text-sm ${
-                  index === active ? 'bg-orange-50' : 'bg-white'
+                className={`flex w-full flex-col items-start border-b border-line px-3 py-2 text-left text-sm last:border-b-0 ${
+                  index === active ? 'bg-accent text-accent-ink' : 'bg-ground'
                 }`}
               >
-                <span className="font-medium text-stone-900">{place.name}</span>
-                <span className="text-xs text-stone-500">
+                <span className="font-semibold">{place.name}</span>
+                <span className="data text-[11px] uppercase tracking-[0.06em] opacity-70">
                   {[place.region, place.country].filter(Boolean).join(', ')}
                 </span>
               </button>

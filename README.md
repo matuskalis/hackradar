@@ -86,6 +86,18 @@ RLS je zapnuté na všetkých tabuľkách. Anonymný kľúč číta iba riadky s
 prechádzajú service-role kľúčom na serveri. Poloha návštevníka sa nikam
 neukladá.
 
+## Vzhľad
+
+Vizuálny systém je v `app/globals.css`. Farby, písma a tvary sú tokeny v bloku
+`@theme`, komponenty nepoužívajú surové hodnoty. Tmavý režim prepisuje tie isté
+premenné pod `:root` v media query `prefers-color-scheme`, lebo Tailwind 4
+vyhodnocuje `@theme` raz pri builde a druhý `@theme` v media query by nefungoval.
+Prepínač režimu zatiaľ nie je, riadi to nastavenie systému.
+
+Farby formátov sú na dvoch miestach: ako tokeny v `globals.css` a ako hodnoty
+v `components/map/mapStyle.ts`, pretože výrazy MapLibre nevedia čítať CSS
+premenné. Pri zmene treba upraviť obe.
+
 ## Známe obmedzenia
 
 - MapLibre je zámerne verzia 5. Verzia 6.7 sa pod Turbopackom nenačíta
