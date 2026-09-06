@@ -36,6 +36,23 @@ export function urlHost(value: string | null | undefined): string | null {
   }
 }
 
+/**
+ * Host plus path, without query, fragment or trailing slash. Deduplication
+ * compares this rather than the host alone: every event on a platform such as
+ * unstop.com or devpost.com shares one host, so a host match would collapse
+ * unrelated events that happen to start on the same day.
+ */
+export function urlKey(value: string | null | undefined): string | null {
+  const host = urlHost(value)
+  if (!host) return null
+  try {
+    const path = new URL(value!).pathname.replace(/\/+$/, '').toLowerCase()
+    return path ? `${host}${path}` : host
+  } catch {
+    return null
+  }
+}
+
 export function slugForEvent(name: string, startAt: string): string {
   const year = new Date(startAt).getUTCFullYear()
   const base = slugify(name)

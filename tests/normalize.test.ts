@@ -4,6 +4,7 @@ import {
   slugForEvent,
   slugify,
   urlHost,
+  urlKey,
 } from '@/lib/hackathons/normalize'
 import { isSameEvent } from '@/lib/hackathons/upsert'
 
@@ -50,6 +51,20 @@ describe('urlHost', () => {
   it('returns null for unusable input', () => {
     expect(urlHost(null)).toBeNull()
     expect(urlHost('not a url')).toBeNull()
+  })
+})
+
+describe('urlKey', () => {
+  it('keeps the path so two events on one platform stay apart', () => {
+    expect(urlKey('https://unstop.com/hackathons/alpha-123')).not.toBe(
+      urlKey('https://unstop.com/hackathons/beta-456')
+    )
+  })
+
+  it('ignores www, query, fragment and a trailing slash', () => {
+    expect(urlKey('https://www.hackkosice.com/apply/?utm_source=x#top')).toBe(
+      urlKey('https://hackkosice.com/apply')
+    )
   })
 })
 
@@ -106,6 +121,26 @@ describe('isSameEvent', () => {
         registration_url: 'https://pragueblockchain.cz/register',
         url: null,
         city: 'Praha',
+      })
+    ).toBe(false)
+  })
+
+  it('keeps two events hosted on the same platform apart', () => {
+    const alpha = {
+      name_normalized: 'alphahack',
+      registration_url: 'https://unstop.com/hackathons/alpha-123',
+      url: null,
+      start_at: '2026-09-03T09:00:00Z',
+      city: null,
+    }
+
+    expect(
+      isSameEvent(alpha, {
+        name: 'Beta Challenge',
+        start_at: '2026-09-03T09:00:00Z',
+        registration_url: 'https://unstop.com/hackathons/beta-456',
+        url: null,
+        city: null,
       })
     ).toBe(false)
   })

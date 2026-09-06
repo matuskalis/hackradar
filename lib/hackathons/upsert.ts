@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Tables, TablesInsert } from '@/lib/db/database.types'
-import { normalizeName, slugForEvent, urlHost } from './normalize'
+import { normalizeName, slugForEvent, urlKey } from './normalize'
 
 export type HackathonInput = {
   name: string
@@ -138,8 +138,8 @@ export function isSameEvent(
 
   if (candidate.name_normalized === normalizeName(input.name)) return true
 
-  const host = urlHost(input.registration_url ?? input.url)
-  return host != null && urlHost(candidate.registration_url ?? candidate.url) === host
+  const key = urlKey(input.registration_url ?? input.url)
+  return key != null && urlKey(candidate.registration_url ?? candidate.url) === key
 }
 
 /** Loads same-week rows and returns the first one describing the same event. */

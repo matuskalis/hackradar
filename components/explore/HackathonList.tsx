@@ -109,7 +109,7 @@ export function HackathonList({
               <p className="text-sm text-stone-600">
                 {dateRange(item.start_at, item.end_at)}
                 {' · '}
-                {item.city ?? FORMATS[item.format]}
+                {item.lat != null && item.city ? item.city : FORMATS[item.format]}
                 {item.distance_km != null && ` · ${formatDistance(item.distance_km)}`}
               </p>
 
