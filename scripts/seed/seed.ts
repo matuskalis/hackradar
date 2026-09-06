@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { config } from 'dotenv'
 import { parse } from 'csv-parse/sync'
@@ -13,12 +13,22 @@ async function main() {
   const { geocode } = await import('../import/lib/geocode')
 
   const db = createAdminClient()
-  const csvPath = join(process.cwd(), 'scripts/seed/hackathons.csv')
-  const rows: Record<string, string>[] = parse(readFileSync(csvPath, 'utf8'), {
-    columns: true,
-    skip_empty_lines: true,
-    trim: true,
-  })
+  // Every CSV in the seed folder is loaded, so research batches can be dropped
+  // in as separate files. Duplicates across files are merged by upsertHackathon.
+  const seedDir = join(process.cwd(), 'scripts/seed')
+  const files = readdirSync(seedDir)
+    .filter((file) => file.endsWith('.csv'))
+    .sort()
+
+  const rows: Record<string, string>[] = files.flatMap(
+    (file) =>
+      parse(readFileSync(join(seedDir, file), 'utf8'), {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      }) as Record<string, string>[]
+  )
+  console.log(`seed: reading ${rows.length} rows from ${files.join(', ')}`)
 
   const counts = { inserted: 0, updated: 0, merged: 0, skipped: 0, geocoded: 0 }
   const pending: string[] = []
