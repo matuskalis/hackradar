@@ -36,8 +36,9 @@ async function main() {
       cleaned.registration_deadline = `${deadline}T23:59:00${offset}`
     }
 
-    // Dates we could not confirm on the organiser's page wait for review
-    // instead of going straight onto the map.
+    // Every seeded row goes on the map. Dates we could not confirm on the
+    // organiser's page are still listed, and reported below so they can be
+    // checked against the next edition's announcement.
     const confirmed = cleaned.date_confidence === 'confirmed'
     const parsed = csvRowSchema.safeParse(cleaned)
 
@@ -72,7 +73,7 @@ async function main() {
       location_precision: point?.precision ?? null,
       source: 'manual',
       source_url: row.source_url ?? row.url ?? null,
-      status: confirmed ? 'published' : 'pending',
+      status: 'published',
     })
     counts[result.action]++
     if (!confirmed) pending.push(row.name)
@@ -83,9 +84,7 @@ async function main() {
       `${counts.merged} merged, ${counts.skipped} skipped, ${counts.geocoded} geocoded`
   )
   if (pending.length > 0) {
-    console.log(
-      `${pending.length} rows are waiting for review because their date is not confirmed:`
-    )
+    console.log(`${pending.length} published rows have an unconfirmed date:`)
     for (const name of pending) console.log(`  - ${name}`)
   }
 }

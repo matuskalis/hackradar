@@ -45,9 +45,11 @@ Studio 54523), aby nekolidoval s inými projektmi na tom istom počítači.
 Tri kanály, všetky idú cez jedinú zapisovaciu cestu `lib/hackathons/upsert.ts`,
 ktorá rieši slug aj deduplikáciu:
 
-1. **Seed CSV** (`scripts/seed/hackathons.csv`) — ručne overené podujatia.
-   Riadky so stĺpcom `date_confidence` iným než `confirmed` sa uložia ako
-   `pending`, nezobrazia sa na mape, kým termín niekto neoverí.
+1. **Seed CSV** (`scripts/seed/hackathons.csv`) — ručne overené podujatia,
+   všetky sa zverejnia. Stĺpec `date_confidence` hovorí, či bol termín
+   potvrdený na stránke organizátora (`confirmed`), alebo je odhadnutý podľa
+   minuloročného ročníka (`estimated`, `past`). Seed na konci vypíše zoznam
+   riadkov s neovereným termínom, aby sa dali skontrolovať.
 2. **Importéry** (`scripts/import/`) — MLH a Hack Club, denne cez GitHub
    Actions. Podrobnosti a stav zdrojov sú v `docs/sources.md`.
 3. **Formulár** `/pridat` — verejné odoslanie, uloží sa ako `pending`.
@@ -87,4 +89,6 @@ neukladá.
   (štýl zostane nenačítaný a nevyžiada si ani jednu dlaždicu).
 - Importéry dnes nedodajú ani jeden stredoeurópsky prezenčný hackathon.
   Reálnym zdrojom pre región je seed CSV a formulár.
+- 20 z 29 seed podujatí má odhadnutý termín, nie potvrdený. Na mape sa
+  zobrazujú rovnako ako potvrdené. Zoznam je v `docs/seed-notes.md`.
 - Bez účtov, upozornení a admin rozhrania. To je fáza 2.
