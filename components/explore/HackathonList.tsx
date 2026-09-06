@@ -68,13 +68,17 @@ export function HackathonList({
     )
   }
 
-  return (
-    <ul className="divide-y divide-stone-200">
-      {items.map((item) => {
-        const deadline = daysLeft(item.registration_deadline)
-        const isSelected = item.id === selectedId
+  // Online events have no place, so they are not "nearby" and would otherwise
+  // pad out the local list on a city page.
+  const nearby = items.filter((item) => item.lat != null)
+  const online = items.filter((item) => item.lat == null)
 
-        return (
+  const renderItem = (item: HackathonCard) => {
+    {
+      const deadline = daysLeft(item.registration_deadline)
+      const isSelected = item.id === selectedId
+
+      return (
           <li
             key={item.id}
             ref={isSelected ? selectedRef : null}
@@ -133,8 +137,24 @@ export function HackathonList({
               </div>
             </div>
           </li>
-        )
-      })}
-    </ul>
+      )
+    }
+  }
+
+  return (
+    <>
+      {nearby.length > 0 && (
+        <ul className="divide-y divide-stone-200">{nearby.map(renderItem)}</ul>
+      )}
+
+      {online.length > 0 && (
+        <>
+          <h2 className="border-y border-stone-200 bg-stone-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-stone-500">
+            Online, odkiaľkoľvek ({online.length})
+          </h2>
+          <ul className="divide-y divide-stone-200">{online.map(renderItem)}</ul>
+        </>
+      )}
+    </>
   )
 }

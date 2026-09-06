@@ -100,6 +100,21 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
     setSearch({ mode: 'bbox', bbox })
   }, [])
 
+  // Online events belong to no place, so the count separates them from the
+  // ones that are actually near the visitor.
+  const onlineCount = items.filter((item) => item.lat == null).length
+  const nearbyCount = items.length - onlineCount
+  const summary = loading
+    ? 'Načítavam…'
+    : [
+        search.mode === 'radius'
+          ? `${nearbyCount} v okolí ${label}`
+          : `${nearbyCount} vo výreze mapy`,
+        onlineCount > 0 ? `${onlineCount} online` : null,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+
   const backToCenter = () => {
     const target = geo.coords ?? initialCenter
     setCenter(target)
@@ -180,10 +195,7 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
             mobileTab === 'list' ? 'flex' : 'hidden'
           )}
         >
-          <span>
-            {loading ? 'Načítavam…' : `${items.length} hackathonov`}
-            {search.mode === 'radius' && !loading && ` v okolí ${label}`}
-          </span>
+          <span>{summary}</span>
           <Link href="/pridat" className="text-orange-700 underline underline-offset-2">
             Pridať hackathon
           </Link>
