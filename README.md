@@ -54,6 +54,8 @@ ktorá rieši slug aj deduplikáciu:
 2. **Importéry** (`scripts/import/`) — MLH a Hack Club, denne cez GitHub
    Actions. Podrobnosti a stav zdrojov sú v `docs/sources.md`.
 3. **Formulár** `/pridat` — verejné odoslanie, uloží sa ako `pending`.
+4. **Pull request** — riadok do ktoréhokoľvek CSV v `scripts/seed/`. Postup a
+   pravidlá sú v `CONTRIBUTING.md`.
 
 Schvaľovanie zatiaľ nemá vlastné rozhranie. Riadok sa zverejní prepnutím
 `status` na `published` v Supabase Studiu. Admin rozhranie je až fáza 2.
