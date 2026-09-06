@@ -6,6 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import type { HackathonCard } from '@/lib/db/types'
 import { toSources } from './geojson'
 import {
+  calmBasemap,
   cityAreaLayer,
   cityDotLayer,
   clusterCountLayer,
@@ -122,6 +123,8 @@ export default function HackMap({
     // Switching the base style drops every custom source and layer, so the
     // same setup runs on first load and again after each style swap.
     const addOwnLayers = () => {
+      calmBasemap(instance, prefersDark())
+
       const empty: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
 
       instance.addSource('venues', {

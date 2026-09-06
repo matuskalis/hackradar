@@ -1,4 +1,8 @@
-import type { CircleLayerSpecification, SymbolLayerSpecification } from 'maplibre-gl'
+import type {
+  CircleLayerSpecification,
+  SymbolLayerSpecification,
+} from 'maplibre-gl'
+import type maplibregl from 'maplibre-gl'
 
 /**
  * Format colours, mirroring the --color-onsite/hybrid/online tokens in
@@ -110,4 +114,65 @@ export const cityDotLayer: CircleLayerSpecification = {
     'circle-stroke-width': 1,
     'circle-stroke-color': '#ffffff',
   },
+}
+
+/** Fill layers that carry no information for us but a lot of colour. */
+const CLUTTER_FILL =
+  /landcover|landuse|park|building|wood|grass|sand|wetland|ice|glacier|pitch|cemetery|hospital|school/
+
+const ROAD = /^(highway|road|bridge|tunnel)/
+const COUNTRY_BOUNDARY = /boundary_(country|2$)/
+const REGION_BOUNDARY = /boundary_(state|3$)/
+
+/**
+ * Calms the hosted base map so our pins stay the loudest thing on it, and
+ * lifts country borders so the region reads at a glance.
+ *
+ * Layer ids differ between the light and dark styles, so layers are matched by
+ * pattern rather than by name. Every write is guarded: a style can drop or
+ * rename a layer at any time and that must not break the map.
+ */
+export function calmBasemap(map: maplibregl.Map, dark: boolean): void {
+  // On a near-black map a light line reads much louder than a dark line does
+  // on paper, so the dark variant is deliberately softer.
+  const ink = dark ? '#B4B4B4' : '#1A1A1A'
+
+  const set = (id: string, property: string, value: unknown) => {
+    try {
+      map.setPaintProperty(id, property, value as never)
+    } catch {
+      // Layer gone or property not supported; the base map still renders.
+    }
+  }
+
+  for (const layer of map.getStyle().layers) {
+    const { id, type } = layer
+
+    if (type === 'fill' && CLUTTER_FILL.test(id)) {
+      set(id, 'fill-opacity', dark ? 0.3 : 0.35)
+    } else if (type === 'symbol' && id.startsWith('poi')) {
+      try {
+        map.setLayoutProperty(id, 'visibility', 'none')
+      } catch {
+        // Same reasoning as above.
+      }
+    } else if ((type === 'line' || type === 'fill') && ROAD.test(id)) {
+      set(id, `${type}-opacity`, dark ? 0.45 : 0.55)
+    } else if (type === 'line' && COUNTRY_BOUNDARY.test(id)) {
+      set(id, 'line-color', ink)
+      set(id, 'line-opacity', dark ? 0.7 : 0.9)
+      set(id, 'line-blur', 0)
+      set(id, 'line-width', [
+        'interpolate',
+        ['linear'],
+        ['zoom'],
+        3, 1.2,
+        6, 2.2,
+        10, 3,
+      ])
+    } else if (type === 'line' && REGION_BOUNDARY.test(id)) {
+      set(id, 'line-color', ink)
+      set(id, 'line-opacity', dark ? 0.22 : 0.35)
+    }
+  }
 }
