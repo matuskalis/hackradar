@@ -133,9 +133,9 @@ const REGION_BOUNDARY = /boundary_(state|3$)/
  * rename a layer at any time and that must not break the map.
  */
 export function calmBasemap(map: maplibregl.Map, dark: boolean): void {
-  // On a near-black map a light line reads much louder than a dark line does
-  // on paper, so the dark variant is deliberately softer.
-  const ink = dark ? '#B4B4B4' : '#1A1A1A'
+  // White on the dark map, near-black on the light one: the border is the one
+  // line that should always be the brightest thing after the pins.
+  const ink = dark ? '#FFFFFF' : '#1A1A1A'
 
   const set = (id: string, property: string, value: unknown) => {
     try {
@@ -160,7 +160,7 @@ export function calmBasemap(map: maplibregl.Map, dark: boolean): void {
       set(id, `${type}-opacity`, dark ? 0.45 : 0.55)
     } else if (type === 'line' && COUNTRY_BOUNDARY.test(id)) {
       set(id, 'line-color', ink)
-      set(id, 'line-opacity', dark ? 0.7 : 0.9)
+      set(id, 'line-opacity', 1)
       set(id, 'line-blur', 0)
       set(id, 'line-width', [
         'interpolate',
@@ -172,7 +172,7 @@ export function calmBasemap(map: maplibregl.Map, dark: boolean): void {
       ])
     } else if (type === 'line' && REGION_BOUNDARY.test(id)) {
       set(id, 'line-color', ink)
-      set(id, 'line-opacity', dark ? 0.22 : 0.35)
+      set(id, 'line-opacity', dark ? 0.3 : 0.35)
     }
   }
 }
