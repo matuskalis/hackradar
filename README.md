@@ -45,8 +45,9 @@ Studio 54523), aby nekolidoval s inými projektmi na tom istom počítači.
 Tri kanály, všetky idú cez jedinú zapisovaciu cestu `lib/hackathons/upsert.ts`,
 ktorá rieši slug aj deduplikáciu:
 
-1. **Seed CSV** (`scripts/seed/hackathons.csv`) — ručne overené podujatia,
-   všetky sa zverejnia. Stĺpec `date_confidence` hovorí, či bol termín
+1. **Seed CSV** — každý `.csv` v `scripts/seed/` sa načíta, takže výskumné
+   dávky sa pridávajú ako samostatné súbory a prekryvy medzi nimi zlúči
+   deduplikácia. Všetky riadky sa zverejnia. Stĺpec `date_confidence` hovorí, či bol termín
    potvrdený na stránke organizátora (`confirmed`), alebo je odhadnutý podľa
    minuloročného ročníka (`estimated`, `past`). Seed na konci vypíše zoznam
    riadkov s neovereným termínom, aby sa dali skontrolovať.
@@ -89,6 +90,13 @@ neukladá.
   (štýl zostane nenačítaný a nevyžiada si ani jednu dlaždicu).
 - Importéry dnes nedodajú ani jeden stredoeurópsky prezenčný hackathon.
   Reálnym zdrojom pre región je seed CSV a formulár.
-- 20 z 29 seed podujatí má odhadnutý termín, nie potvrdený. Na mape sa
-  zobrazujú rovnako ako potvrdené. Zoznam je v `docs/seed-notes.md`.
+- Časť podujatí má odhadnutý termín, nie potvrdený. Ide o každoročné akcie,
+  ktorým sa dal doložiť pravidelný termín, ale nový ročník ešte nebol
+  vyhlásený. Na mape sa zobrazujú rovnako ako potvrdené. Dôvody sú v
+  `docs/seed-notes*.md`.
+- Podujatie, ktoré už skončilo, sa na mape nikdy nezobrazí. Vyhľadávanie
+  filtruje `end_at >= now()`. Preto seed obsahuje len budúce termíny.
+- Maďarsko a Rakúsko sú najslabšie pokryté. Maďarské zdroje boli počas
+  výskumu zväčša nedostupné alebo blokované, rakúske firemné a univerzitné
+  stránky verejné hackathony neuvádzali.
 - Bez účtov, upozornení a admin rozhrania. To je fáza 2.
