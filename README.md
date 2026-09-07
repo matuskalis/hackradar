@@ -76,7 +76,8 @@ lib/                 db/, hackathons/, validation/, hooks/, ics, taxonomy, citie
 scripts/seed/        seed skript + CSV
 scripts/import/      importéry a ich spoločná logika
 supabase/migrations/ schéma, RLS, funkcie
-docs/                sources.md (zdroje dát), seed-notes.md (overenie riadkov)
+docs/                roadmap.md (čo ďalej), sources.md (zdroje dát),
+                     landscape.md (konkurencia), seed-notes*.md (overenie riadkov)
 ```
 
 ## Bezpečnosť dát
@@ -97,6 +98,13 @@ Prepínač režimu zatiaľ nie je, riadi to nastavenie systému.
 Farby formátov sú na dvoch miestach: ako tokeny v `globals.css` a ako hodnoty
 v `components/map/mapStyle.ts`, pretože výrazy MapLibre nevedia čítať CSS
 premenné. Pri zmene treba upraviť obe.
+
+## Čo ďalej
+
+Plán ďalších etáp aj s odôvodnením je v `docs/roadmap.md`. Najbližšie je
+nasadenie a potom udržanie dát čerstvých: dve tretiny podujatí na mape skončia
+do 90 dní a automatické importéry dnes dodajú jedno, takže bez zásahu sa mapa
+vyprázdni sama.
 
 ## Známe obmedzenia
 
