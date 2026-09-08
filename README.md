@@ -54,19 +54,20 @@ Studio 54523), aby nekolidoval s inými projektmi na tom istom počítači.
 
 ## Ako sa dáta dostanú na mapu
 
-Tri kanály, všetky idú cez jedinú zapisovaciu cestu `lib/hackathons/upsert.ts`,
-ktorá rieši slug aj deduplikáciu:
+Štyri kanály. Prvé tri idú cez jedinú zapisovaciu cestu
+`lib/hackathons/upsert.ts`, ktorá rieši slug aj deduplikáciu:
 
 1. **Seed CSV** — každý `.csv` v `scripts/seed/` sa načíta, takže výskumné
    dávky sa pridávajú ako samostatné súbory a prekryvy medzi nimi zlúči
-   deduplikácia. Všetky riadky sa zverejnia. Stĺpec `date_confidence` hovorí, či bol termín
-   potvrdený na stránke organizátora (`confirmed`), alebo je odhadnutý podľa
-   minuloročného ročníka (`estimated`, `past`). Seed na konci vypíše zoznam
-   riadkov s neovereným termínom, aby sa dali skontrolovať.
+   deduplikácia. Všetky riadky sa zverejnia. Stĺpec `date_confidence` hovorí,
+   či bol termín potvrdený na stránke organizátora (`confirmed`), alebo je
+   odhadnutý podľa minuloročného ročníka (`estimated`, `past`). Seed na konci
+   vypíše riadky s neovereným termínom, aby sa dali skontrolovať.
 2. **Formulár** `/pridat` — verejné odoslanie, uloží sa ako `pending`.
 3. **Pull request** — riadok do ktoréhokoľvek CSV v `scripts/seed/`. Postup a
    pravidlá sú v `CONTRIBUTING.md`.
-4. **E-mail** — kto o podujatí vie, napíše na m3kalis@gmail.com a pridáme ho.
+4. **E-mail** — kto o podujatí vie, napíše na m3kalis@gmail.com a pridáme ho
+   ručne, teda cez niektorý z predchádzajúcich troch kanálov.
 
 Automatické importéry projekt mal, ale boli zrušené. Zo zdrojov, ktoré
 automatizáciu dovoľujú, nepribúdali stredoeurópske podujatia; za celý ich beh
