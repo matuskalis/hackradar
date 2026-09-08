@@ -1,7 +1,8 @@
 # Pridanie hackathonu
 
-Sú dve cesty. Formulár na `/pridat` je pre organizátorov. Pull request je pre
-každého, kto vie o podujatí a chce ho pridať aj s dôkazom.
+Sú tri cesty. Formulár na `/pridat` je pre organizátorov. Pull request je pre
+každého, kto vie o podujatí a chce ho pridať aj s dôkazom. Ak sa vám ani jedno
+nechce, napíšte na m3kalis@gmail.com a pridáme ho za vás.
 
 ## Cez pull request
 

@@ -10,7 +10,7 @@ async function main() {
   const { createAdminClient } = await import('@/lib/db/supabase')
   const { upsertHackathon } = await import('@/lib/hackathons/upsert')
   const { csvRowSchema } = await import('@/lib/validation/schemas')
-  const { geocode } = await import('../import/lib/geocode')
+  const { geocode } = await import('@/lib/geocode')
 
   const db = createAdminClient()
   // Every CSV in the seed folder is loaded, so research batches can be dropped

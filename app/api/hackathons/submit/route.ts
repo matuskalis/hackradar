@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/db/supabase'
 import { upsertHackathon } from '@/lib/hackathons/upsert'
 import { checkRateLimit, clientKey, rateLimitHeaders } from '@/lib/rate-limit/limiter'
 import { submitSchema } from '@/lib/validation/schemas'
-import { geocode } from '@/scripts/import/lib/geocode'
+import { geocode } from '@/lib/geocode'
 
 export async function POST(request: NextRequest) {
   const verdict = await checkRateLimit(clientKey(request, 'submit'), 5, 60 * 60_000)

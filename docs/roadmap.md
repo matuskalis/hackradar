@@ -15,7 +15,7 @@ nebeží a čísla hovoria, že bez zásahu sa sám vyprázdni.
 |---|---|---|
 | Podujatí skončí do 90 dní | 69 zo 106 | Do decembra zmizne dve tretiny obsahu |
 | Podujatí skončí do 30 dní | 34 | Prvá vlna už o mesiac |
-| Prínos automatických importérov | 1 zo 106 | Cron beží denne a dodá jedno podujatie |
+| Prínos automatických importérov | 1 zo 106 | Preto boli 8. 9. 2026 zrušené |
 | Odhadnuté termíny v seed dátach | 42 zo 119 | Tretinu dátumov sme uhádli a tvárime sa, že sú isté |
 | Piny s presnou adresou | 25 zo 74 | Zvyšok je stred mesta, nie miesto konania |
 | Podujatí s termínom registrácie | 9 zo 106 | Odpočet na detaile sa zobrazí na 8 % podujatí |
@@ -30,13 +30,13 @@ zbytočné nad mapou, ktorá o tri mesiace nebude mať čo ukázať.
 Tri veci nie sú nedostatky, ale chyby, ktoré treba opraviť skôr než sa na
 ne postaví čokoľvek ďalšie:
 
-1. **Nočný import prepíše rozhodnutia moderátora.** `lib/hackathons/upsert.ts`
-   pri zhode `source_id` prepisuje celý riadok vrátane `status`, a
-   `scripts/import/lib/run.ts` vždy posiela `status: 'published'`. Riadok,
-   ktorý niekto označí ako `rejected` alebo `cancelled`, sa o 04:17 UTC vráti
-   späť na published. Rovnako sa stratí každá ručná oprava názvu, popisu alebo
-   súradníc. Admin rozhranie postavené nad takouto zapisovacou cestou by bolo
-   na nič.
+1. **Seed prepíše rozhodnutia moderátora.** `lib/hackathons/upsert.ts` pri
+   zhode prepisuje celý riadok vrátane `status`, a `scripts/seed/seed.ts` vždy
+   posiela `status: 'published'`. Riadok, ktorý niekto označí ako `rejected`
+   alebo `cancelled`, sa pri ďalšom `npm run seed` vráti späť na published
+   a každá ručná oprava názvu, popisu či súradníc zmizne. Zrušenie nočného
+   importu problém zmenšilo, ale neodstránilo: admin rozhranie postavené nad
+   takouto zapisovacou cestou by stále nedávalo zmysel.
 2. **Čas podujatia sa vykresľuje v pásme servera, nie podujatia.** Stĺpec
    `timezone` sa ukladá aj validuje, ale `app/hackathon/[slug]/page.tsx` ho
    pri formátovaní nepoužije. Lokálne to nevidno, na Verceli beží UTC, takže
@@ -94,7 +94,7 @@ Najdôležitejšia etapa a najmenej viditeľná, lebo dnes je mapa plná ručne
 naseedovanými dátami. O tri mesiace nebude.
 
 **1.1 Opraviť zapisovaciu cestu.** Predchádza všetkému ostatnému v tejto etape.
-- Importér nesmie posielať `status`; existujúci riadok si svoj stav ponechá.
+- Seed nesmie posielať `status`; existujúci riadok si svoj stav ponechá.
 - Pridať `locked_fields text[]` alebo `edited_at`, aby ručná oprava prežila
   ďalší import. Merge už dnes vie plniť len prázdne stĺpce
   (`MERGEABLE_COLUMNS` v `lib/hackathons/upsert.ts`), rovnaká logika sa použije
@@ -126,23 +126,23 @@ ročník skončí, úloha založí ďalší ako `pending` s odhadnutým termíno
 jednorazová rešerš mení na majetok, ktorý sa obnovuje sám. Bez toho každá
 hodina hľadania o rok vyprchá.
 
-**1.5 Kontrola čerstvosti.**
+**1.5 Kontrola čerstvosti.** Po zrušení importérov v projekte nebeží žiadna
+pravidelná úloha, takže toto je zároveň jediná vec, ktorá bude Supabase free
+projekt držať pri živote.
 - Týždenná úloha overí `registration_url` a označí mŕtve odkazy.
 - Nahlási podujatia, ktoré skončili a nemajú nasledovníka.
-- `import_runs` konečne niekto prečíta. Dnes sa do nej zapisuje a nikto sa na
-  ňu nepozerá, takže tiché zlyhanie importu nikto nezbadá.
+- Tabuľka `import_runs` zostala v schéme, ale po zrušení importérov do nej už
+  nikto nezapisuje. Buď ju zahodiť migráciou, alebo ju použiť na záznam
+  o behoch kontroly čerstvosti.
 
-**1.6 Importéry zo zdrojov, ktoré to dovoľujú.** Náhrada za Devpost:
-- **Unstop** má verejné JSON API, overené v tejto relácii.
-- **TAIKAI** má verejné GraphQL a v dokumentácii priamo vyzýva, aby agenti
-  používali API namiesto scrapovania. Introspekcia je vypnutá, treba ich
-  požiadať o schému.
-- **lablab.ai** je najbohatší zdroj hackathonov AI firiem, dnes z neho máme
-  sedem podujatí ako jednorazový seed. Zmeniť na importér.
-- **ETHGlobal**, **Microsoft Reactor**, **Hugging Face**, **GitHub Education**
-  kalendáre.
-- Ponechať MLH a Hack Club.
-- Voliteľne napísať Devpostu a spýtať sa na povolenie. Text pripravím.
+**1.6 Podujatia pribúdajú ručne.** Importéry boli 8. 9. 2026 zrušené; za celý
+čas dodali jedno podujatie zo 106. Kanály sú teraz seed CSV, formulár, pull
+request a e-mail na m3kalis@gmail.com. Ak sa niekto ozve s dobrým zdrojom,
+importér sa dá napísať vtedy. Prieskum preverených zdrojov zostáva
+v `docs/sources.md`.
+
+Vedľajší účinok, na ktorý treba myslieť pri nasadení: denný cron zároveň držal
+Supabase free projekt aktívny. Bez neho sa po 7 dňoch nečinnosti pauzuje.
 
 **Hotové, keď** podanie z formulára vieš schváliť v prehliadači do minúty,
 nočný import už nič neprepíše a existuje zoznam podujatí, ktorým vypršal termín.
@@ -226,6 +226,9 @@ Nie samostatná etapa, zapracovať do tej, ktorá sa daného súboru dotkne.
 ## Čo zámerne nerobíme
 
 - **Devpost.** Ich podmienky to zakazujú. Rozhodnutie z 7. 9. 2026.
+- **Automatické importéry.** Zrušené 8. 9. 2026. Dodali jedno podujatie zo 106,
+  pretože preverené zdroje v strednej Európe nič nemajú. Vrátiť sa k tomu má
+  zmysel len ak sa objaví zdroj, ktorý región reálne pokrýva.
 - **Monetizácia.** Vyradená skôr, nič sa nemení.
 - **Natívna aplikácia.** PWA stačí.
 - **Hľadanie tímu a hodnotenia teraz.** Bez používateľov to nemá čo hodnotiť.
@@ -259,7 +262,6 @@ Nad rámec toho po etapách:
 
 - `lib/hackathons/upsert.ts` – jediná zapisovacia cesta; kým sa neopraví
   prepisovanie, nemá zmysel stavať moderáciu
-- `scripts/import/lib/run.ts` – posiela natvrdo `status: 'published'`
 - `supabase/migrations/` – nové stĺpce pre `date_confidence`, `recurrence`,
   `parent_id`, tabuľka `reports`, admin RLS politika
 - `app/hackathon/[slug]/page.tsx` – časové pásmo, stav „skončilo", štítok

@@ -9,7 +9,6 @@
     "lint": "eslint",
     "test": "vitest run",
     "seed": "tsx scripts/seed/seed.ts",
-    "import": "tsx scripts/import/index.ts",
     "db:types": "supabase gen types typescript --local > lib/db/database.types.ts"
   },
   "dependencies": {

@@ -50,8 +50,6 @@ Studio 54523), aby nekolidoval s inými projektmi na tom istom počítači.
 | `npm test` | jednotkové testy (Vitest) |
 | `npm run lint` | ESLint |
 | `npm run seed` | načíta `scripts/seed/hackathons.csv` |
-| `npm run import -- mlh` | import z MLH |
-| `npm run import -- hackclub` | import z Hack Club |
 | `npm run db:types` | vygeneruje typy z lokálnej databázy |
 
 ## Ako sa dáta dostanú na mapu
@@ -65,11 +63,15 @@ ktorá rieši slug aj deduplikáciu:
    potvrdený na stránke organizátora (`confirmed`), alebo je odhadnutý podľa
    minuloročného ročníka (`estimated`, `past`). Seed na konci vypíše zoznam
    riadkov s neovereným termínom, aby sa dali skontrolovať.
-2. **Importéry** (`scripts/import/`) — MLH a Hack Club, denne cez GitHub
-   Actions. Podrobnosti a stav zdrojov sú v `docs/sources.md`.
-3. **Formulár** `/pridat` — verejné odoslanie, uloží sa ako `pending`.
-4. **Pull request** — riadok do ktoréhokoľvek CSV v `scripts/seed/`. Postup a
+2. **Formulár** `/pridat` — verejné odoslanie, uloží sa ako `pending`.
+3. **Pull request** — riadok do ktoréhokoľvek CSV v `scripts/seed/`. Postup a
    pravidlá sú v `CONTRIBUTING.md`.
+4. **E-mail** — kto o podujatí vie, napíše na m3kalis@gmail.com a pridáme ho.
+
+Automatické importéry projekt mal, ale boli zrušené. Zo zdrojov, ktoré
+automatizáciu dovoľujú, nepribúdali stredoeurópske podujatia; za celý ich beh
+prišlo jedno zo 106. Prehľad preverených zdrojov aj s dôvodmi zostáva
+v `docs/sources.md`.
 
 Schvaľovanie zatiaľ nemá vlastné rozhranie. Riadok sa zverejní prepnutím
 `status` na `published` v Supabase Studiu. Admin rozhranie je až fáza 2.
@@ -88,7 +90,6 @@ app/                 stránky a route handlery
 components/          map/, explore/, search/, submit/
 lib/                 db/, hackathons/, validation/, hooks/, ics, taxonomy, cities
 scripts/seed/        seed skript + CSV
-scripts/import/      importéry a ich spoločná logika
 supabase/migrations/ schéma, RLS, funkcie
 docs/                roadmap.md (čo ďalej), sources.md (zdroje dát),
                      landscape.md (konkurencia), seed-notes*.md (overenie riadkov)
@@ -117,15 +118,14 @@ premenné. Pri zmene treba upraviť obe.
 
 Plán ďalších etáp aj s odôvodnením je v `docs/roadmap.md`. Najbližšie je
 nasadenie a potom udržanie dát čerstvých: dve tretiny podujatí na mape skončia
-do 90 dní a automatické importéry dnes dodajú jedno, takže bez zásahu sa mapa
-vyprázdni sama.
+do 90 dní, takže bez dopĺňania sa mapa vyprázdni sama.
 
 ## Známe obmedzenia
 
 - MapLibre je zámerne verzia 5. Verzia 6.7 sa pod Turbopackom nenačíta
   (štýl zostane nenačítaný a nevyžiada si ani jednu dlaždicu).
-- Importéry dnes nedodajú ani jeden stredoeurópsky prezenčný hackathon.
-  Reálnym zdrojom pre región je seed CSV a formulár.
+- Podujatia pribúdajú ručne. Zdrojom sú seed CSV, formulár, pull request
+  a e-mail. Žiadny automatický import nebeží.
 - Časť podujatí má odhadnutý termín, nie potvrdený. Ide o každoročné akcie,
   ktorým sa dal doložiť pravidelný termín, ale nový ročník ešte nebol
   vyhlásený. Na mape sa zobrazujú rovnako ako potvrdené. Dôvody sú v
@@ -136,3 +136,8 @@ vyprázdni sama.
   výskumu zväčša nedostupné alebo blokované, rakúske firemné a univerzitné
   stránky verejné hackathony neuvádzali.
 - Bez účtov, upozornení a admin rozhrania. To je fáza 2.
+
+## Kontakt
+
+Viete o hackathone v strednej Európe? Napíšte na m3kalis@gmail.com alebo použite
+formulár na `/pridat`.

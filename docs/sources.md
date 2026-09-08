@@ -1,11 +1,19 @@
 # Zdroje dát
 
+> **Automatické importéry boli 8. 9. 2026 zrušené.** Za celý čas, čo bežali,
+> pridali jedno podujatie zo 106; ani MLH, ani Hack Club nemajú v strednej
+> Európe prezenčné hackathony. Kód aj denný cron sú preč. Podujatia pribúdajú
+> cez seed CSV, formulár `/pridat`, pull request a e-mail.
+>
+> Prieskum zdrojov nižšie zostáva, lebo hovorí, čo sa preverilo a s akým
+> výsledkom. Ak sa k importu niekedy vrátime, netreba to robiť znova.
+
 Stav overený 5. 9. 2026. Pri zmene ktoréhokoľvek zdroja aktualizujte aj fixture
 v `tests/fixtures/` a test v `tests/importers/`.
 
-## Aktívne importéry
+## Preverené zdroje
 
-### MLH — `scripts/import/mlh.ts`
+### MLH
 - `https://www.mlh.com/seasons/{season}/events` (mlh.io presmeruje sem).
 - Inertia aplikácia. S hlavičkami `X-Inertia: true` a `X-Inertia-Version`
   vráti JSON, verzia sa číta z `<script data-page="app">` v HTML. Pri 409 sa
@@ -16,7 +24,7 @@ v `tests/fixtures/` a test v `tests/importers/`.
 - Pokrytie k 5. 9. 2026: 70 nadchádzajúcich eventov, z toho US 51, CA 12, IN 3,
   GB 2, MX 1. **Stredná Európa 0.**
 
-### Hack Club — `scripts/import/hackclub.ts`
+### Hack Club
 - `https://hackathons.hackclub.com/api/events/upcoming/` (koncová lomka je
   povinná, inak 308). Dokumentované na `/data`.
 - Polia vrátane `latitude` a `longitude`, takže tieto riadky netreba geokódovať.
@@ -39,13 +47,17 @@ v `tests/fixtures/` a test v `tests/importers/`.
 
 ## Dôsledok pre projekt
 
-Importéry dnes nedodajú ani jeden stredoeurópsky prezenčný hackathon. Reálnym
-zdrojom dát pre región je `scripts/seed/hackathons.csv` a formulár `/pridat`.
-Importéry pridávajú online eventy a denným zápisom do `import_runs` držia
-Supabase free projekt aktívny (pauzuje po 7 dňoch nečinnosti).
+Ani jeden preverený zdroj nedodá stredoeurópsky prezenčný hackathon. To je
+dôvod, prečo importéry padli. Reálnym zdrojom dát pre región sú CSV súbory
+v `scripts/seed/`, formulár `/pridat`, pull request a e-mail.
+
+Pozor na jeden vedľajší účinok: denný cron zároveň držal Supabase free projekt
+aktívny, ten sa po 7 dňoch nečinnosti pauzuje. Po nasadení to bude treba
+vyriešiť inak.
 
 ## Geokódovanie
 
+Používa ho `lib/geocode.ts` pri seede aj pri odoslaní formulára.
 Photon (`https://photon.komoot.io/api/`), bez kľúča, CORS `*`. Nemá zverejnený
 limit, len „extensive usage will be throttled“. Držíme ≤ 1 požiadavku za sekundu
 a každý výsledok cachujeme v tabuľke `geocode_cache`.
