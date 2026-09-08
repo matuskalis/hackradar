@@ -705,6 +705,7 @@ export type Database = {
           slug: string
           start_at: string
           themes: string[]
+          timezone: string
         }[]
       }
       hackathons_within_radius: {
@@ -739,6 +740,7 @@ export type Database = {
           slug: string
           start_at: string
           themes: string[]
+          timezone: string
         }[]
       }
       longtransactionsenabled: { Args: never; Returns: boolean }

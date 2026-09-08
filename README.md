@@ -19,10 +19,24 @@ npm install
 supabase start          # lokálny Postgres + PostGIS v Dockeri
 supabase db reset       # aplikuje migrácie zo supabase/migrations
 npm run db:types        # vygeneruje lib/db/database.types.ts
-cp .env.example .env.local   # hodnoty vypíše `supabase status`
+# .env.local si vytvorte podľa tabuľky nižšie
 npm run seed            # naplní databázu zo scripts/seed/hackathons.csv
 npm run dev
 ```
+
+### Premenné prostredia
+
+`.env.local` nie je v repozitári a ani tam nepatrí. Vytvorte si ho s týmito
+premennými; lokálne hodnoty pre prvé tri vypíše `supabase status`.
+
+| Premenná | Načo je |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | adresa Supabase API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | verejný kľúč, číta len zverejnené riadky |
+| `SUPABASE_SERVICE_ROLE_KEY` | zápisy zo servera a zo skriptov, **nikdy nesmie ísť do prehliadača** |
+| `NEXT_PUBLIC_SITE_URL` | absolútna adresa webu, číta ju sitemap, canonical aj ICS |
+| `NEXT_PUBLIC_MAP_STYLE_URL` | svetlý štýl mapy, predvolene OpenFreeMap Liberty |
+| `NEXT_PUBLIC_MAP_STYLE_DARK_URL` | tmavý štýl mapy, predvolene OpenFreeMap Dark |
 
 Lokálny Supabase beží na neštandardných portoch (API 54521, databáza 54522,
 Studio 54523), aby nekolidoval s inými projektmi na tom istom počítači.

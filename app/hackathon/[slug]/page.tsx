@@ -13,20 +13,38 @@ const FORMAT_BG: Record<string, string> = {
   hybrid: 'bg-hybrid',
 }
 
-const dateFormat = new Intl.DateTimeFormat('sk-SK', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-})
-
-const timeFormat = new Intl.DateTimeFormat('sk-SK', {
-  hour: '2-digit',
-  minute: '2-digit',
-})
-
-function stamp(value: string): string {
+/**
+ * Times are rendered in the event's own zone. Without this the server's zone
+ * decides, which is UTC in production and puts every Central European event an
+ * hour or two off.
+ */
+function stamp(value: string, timeZone: string | null): string {
   const date = new Date(value)
-  return `${dateFormat.format(date)}, ${timeFormat.format(date)}`
+  const zone = timeZone ?? undefined
+
+  const day = new Intl.DateTimeFormat('sk-SK', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: zone,
+  }).format(date)
+
+  const time = new Intl.DateTimeFormat('sk-SK', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: zone,
+  }).format(date)
+
+  return `${day}, ${time}`
+}
+
+function shortDate(value: string, timeZone: string | null): string {
+  return new Intl.DateTimeFormat('sk-SK', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: timeZone ?? undefined,
+  }).format(new Date(value))
 }
 
 function daysUntil(deadline: string): number {
@@ -44,7 +62,7 @@ export async function generateMetadata({
     title: event.name!,
     description:
       event.description?.slice(0, 160) ??
-      `${event.name} — ${event.city ?? 'online'}, ${dateFormat.format(new Date(event.start_at!))}`,
+      `${event.name} — ${event.city ?? 'online'}, ${shortDate(event.start_at!, event.timezone)}`,
   }
 }
 
@@ -58,13 +76,13 @@ export default async function HackathonPage({ params }: PageProps<'/hackathon/[s
   const left = event.registration_deadline ? daysUntil(event.registration_deadline) : null
 
   const facts: Array<[string, string]> = [
-    ['Termín', `${stamp(event.start_at!)} → ${stamp(event.end_at!)}`],
+    ['Termín', `${stamp(event.start_at!, event.timezone)} → ${stamp(event.end_at!, event.timezone)}`],
     ['Formát', FORMATS[event.format!]],
   ]
   if (place) facts.push(['Miesto', place])
   if (event.organizer_name) facts.push(['Organizátor', event.organizer_name])
   if (event.registration_deadline) {
-    facts.push(['Registrácia do', stamp(event.registration_deadline)])
+    facts.push(['Registrácia do', stamp(event.registration_deadline, event.timezone)])
   }
   facts.push([
     'Vstup',

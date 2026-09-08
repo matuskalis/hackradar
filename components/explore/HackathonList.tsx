@@ -22,17 +22,25 @@ const FORMAT_BAR: Record<string, string> = {
   hybrid: 'bg-hybrid',
 }
 
-const dateFormat = new Intl.DateTimeFormat('sk-SK', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-})
+/**
+ * Dates are rendered in the event's own zone, not the reader's and not the
+ * server's. An event starting after midnight in Warsaw would otherwise show
+ * the previous day to a server running in UTC.
+ */
+function dateFormat(timeZone: string | null) {
+  return new Intl.DateTimeFormat('sk-SK', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: timeZone ?? undefined,
+  })
+}
 
-function dateRange(start: string, end: string): string {
-  const from = new Date(start)
-  const to = new Date(end)
-  if (from.toDateString() === to.toDateString()) return dateFormat.format(from)
-  return `${dateFormat.format(from)} – ${dateFormat.format(to)}`
+function dateRange(start: string, end: string, timeZone: string | null): string {
+  const format = dateFormat(timeZone)
+  const from = format.format(new Date(start))
+  const to = format.format(new Date(end))
+  return from === to ? from : `${from} – ${to}`
 }
 
 function daysLeft(deadline: string | null): string | null {
@@ -110,7 +118,7 @@ export function HackathonList({
           </button>
 
           <p className="data text-[11px] uppercase tracking-[0.06em] text-muted">
-            {dateRange(item.start_at, item.end_at)}
+            {dateRange(item.start_at, item.end_at, item.timezone)}
             {' · '}
             {item.lat != null && item.city ? item.city : FORMATS[item.format]}
             {item.distance_km != null && ` · ${formatDistance(item.distance_km)}`}
