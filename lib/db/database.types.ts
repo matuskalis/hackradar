@@ -297,22 +297,18 @@ export type Database = {
           capacity: number | null
           city: string | null
           country_code: string | null
-          created_at: string | null
           currency: string | null
           description: string | null
           eligibility: string | null
           end_at: string | null
-          extra_sources: Json | null
           format: Database["public"]["Enums"]["hackathon_format"] | null
           id: string | null
           lat: number | null
           lng: number | null
-          location: unknown
           location_precision:
             | Database["public"]["Enums"]["location_precision"]
             | null
           name: string | null
-          name_normalized: string | null
           organizer_name: string | null
           price_cents: number | null
           prizes: string | null
@@ -320,10 +316,7 @@ export type Database = {
           registration_url: string | null
           slug: string | null
           source: Database["public"]["Enums"]["hackathon_source"] | null
-          source_id: string | null
-          source_url: string | null
           start_at: string | null
-          status: Database["public"]["Enums"]["hackathon_status"] | null
           themes: string[] | null
           timezone: string | null
           updated_at: string | null
@@ -335,22 +328,18 @@ export type Database = {
           capacity?: number | null
           city?: string | null
           country_code?: string | null
-          created_at?: string | null
           currency?: string | null
           description?: string | null
           eligibility?: string | null
           end_at?: string | null
-          extra_sources?: Json | null
           format?: Database["public"]["Enums"]["hackathon_format"] | null
           id?: string | null
           lat?: never
           lng?: never
-          location?: unknown
           location_precision?:
             | Database["public"]["Enums"]["location_precision"]
             | null
           name?: string | null
-          name_normalized?: string | null
           organizer_name?: string | null
           price_cents?: number | null
           prizes?: string | null
@@ -358,10 +347,7 @@ export type Database = {
           registration_url?: string | null
           slug?: string | null
           source?: Database["public"]["Enums"]["hackathon_source"] | null
-          source_id?: string | null
-          source_url?: string | null
           start_at?: string | null
-          status?: Database["public"]["Enums"]["hackathon_status"] | null
           themes?: string[] | null
           timezone?: string | null
           updated_at?: string | null
@@ -373,22 +359,18 @@ export type Database = {
           capacity?: number | null
           city?: string | null
           country_code?: string | null
-          created_at?: string | null
           currency?: string | null
           description?: string | null
           eligibility?: string | null
           end_at?: string | null
-          extra_sources?: Json | null
           format?: Database["public"]["Enums"]["hackathon_format"] | null
           id?: string | null
           lat?: never
           lng?: never
-          location?: unknown
           location_precision?:
             | Database["public"]["Enums"]["location_precision"]
             | null
           name?: string | null
-          name_normalized?: string | null
           organizer_name?: string | null
           price_cents?: number | null
           prizes?: string | null
@@ -396,10 +378,7 @@ export type Database = {
           registration_url?: string | null
           slug?: string | null
           source?: Database["public"]["Enums"]["hackathon_source"] | null
-          source_id?: string | null
-          source_url?: string | null
           start_at?: string | null
-          status?: Database["public"]["Enums"]["hackathon_status"] | null
           themes?: string[] | null
           timezone?: string | null
           updated_at?: string | null

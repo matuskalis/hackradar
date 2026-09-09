@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { VenuePreview } from '@/components/map/VenuePreview'
 import type { HackathonCard } from '@/lib/db/types'
 import { getPublishedBySlug } from '@/lib/hackathons/repo'
+import { toJsonLdScript } from '@/lib/json-ld'
 import { ELIGIBILITY, FORMATS, THEMES } from '@/lib/taxonomy'
 import type { EligibilitySlug, ThemeSlug } from '@/lib/taxonomy'
 
@@ -137,7 +138,7 @@ export default async function HackathonPage({ params }: PageProps<'/hackathon/[s
     <main className="mx-auto w-full max-w-3xl px-4 pb-24 pt-6 md:pb-16">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdScript(jsonLd) }}
       />
 
       <Link

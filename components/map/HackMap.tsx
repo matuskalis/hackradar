@@ -105,7 +105,13 @@ export default function HackMap({
         [45, 72],
       ],
       interactive: !readOnly,
-      attributionControl: { compact: true },
+      // MapLibre's attribution control renders HTML from the style JSON through
+      // DOM.sanitize(), which has an unpatched bypass in every 5.x release
+      // (GHSA-jrc7-96c5-q579). The fix is 6.9, and 6.x does not load under
+      // Turbopack at all. Turning the control off removes the only path from
+      // third-party HTML into that sanitizer; the attribution OpenFreeMap
+      // requires is rendered below as React text instead.
+      attributionControl: false,
     })
     map.current = instance
 
@@ -261,7 +267,40 @@ export default function HackMap({
     instance.flyTo({ center: [center.lng, center.lat], zoom })
   }, [center.lat, center.lng, zoom])
 
-  return <div ref={container} className="h-full w-full" />
+  return (
+    <div className="relative h-full w-full">
+      <div ref={container} className="h-full w-full" />
+      <MapAttribution />
+    </div>
+  )
+}
+
+/**
+ * OpenFreeMap requires attribution. Rendering it here as text keeps MapLibre's
+ * HTML sanitizer out of the picture entirely.
+ */
+function MapAttribution() {
+  return (
+    <p className="pointer-events-auto absolute bottom-0 right-0 z-10 bg-ground/85 px-1.5 py-0.5 text-[10px] text-muted">
+      <a
+        href="https://openfreemap.org/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline underline-offset-2"
+      >
+        OpenFreeMap
+      </a>
+      {' © OpenMapTiles Data from '}
+      <a
+        href="https://www.openstreetmap.org/copyright"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline underline-offset-2"
+      >
+        OpenStreetMap
+      </a>
+    </p>
+  )
 }
 
 export function MapSkeleton() {

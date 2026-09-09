@@ -139,7 +139,9 @@ export function calmBasemap(map: maplibregl.Map, dark: boolean): void {
 
   const set = (id: string, property: string, value: unknown) => {
     try {
-      map.setPaintProperty(id, property, value as never)
+      // The paint property is chosen from the layer's own type at runtime, so
+      // it cannot be narrowed to the union the typings expect.
+      map.setPaintProperty(id, property as never, value as never)
     } catch {
       // Layer gone or property not supported; the base map still renders.
     }

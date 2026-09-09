@@ -5,7 +5,27 @@ import { checkRateLimit, clientKey, rateLimitHeaders } from '@/lib/rate-limit/li
 import { submitSchema } from '@/lib/validation/schemas'
 import { geocode } from '@/lib/geocode'
 
+/**
+ * The endpoint takes no cookie and no session, so a forged cross-site request
+ * cannot act as anybody. It can still be used to push spam into the moderation
+ * queue from another page, so the origin has to match the site.
+ */
+function sameOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get('origin')
+  if (!origin) return true // Not a browser form post; the rate limit still applies.
+
+  try {
+    return new URL(origin).host === request.nextUrl.host
+  } catch {
+    return false
+  }
+}
+
 export async function POST(request: NextRequest) {
+  if (!sameOrigin(request)) {
+    return Response.json({ error: 'Neplatný pôvod požiadavky.' }, { status: 403 })
+  }
+
   const verdict = await checkRateLimit(clientKey(request, 'submit'), 5, 60 * 60_000)
   const headers = rateLimitHeaders(verdict)
 

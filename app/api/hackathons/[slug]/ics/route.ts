@@ -1,10 +1,19 @@
 import { toIcs } from '@/lib/ics'
 import { getPublishedBySlug } from '@/lib/hackathons/repo'
+import { checkRateLimit, clientKey, rateLimitHeaders } from '@/lib/rate-limit/limiter'
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: RouteContext<'/api/hackathons/[slug]/ics'>
 ) {
+  const verdict = await checkRateLimit(clientKey(request, 'ics'), 60, 60_000)
+  if (!verdict.ok) {
+    return new Response('Príliš veľa požiadaviek.', {
+      status: 429,
+      headers: rateLimitHeaders(verdict),
+    })
+  }
+
   const { slug } = await context.params
   const event = await getPublishedBySlug(slug)
 
@@ -29,6 +38,7 @@ export async function GET(
 
   return new Response(ics, {
     headers: {
+      ...rateLimitHeaders(verdict),
       'Content-Type': 'text/calendar; charset=utf-8',
       'Content-Disposition': `attachment; filename="${event.slug}.ics"`,
     },

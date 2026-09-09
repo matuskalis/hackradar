@@ -96,6 +96,11 @@ docs/                roadmap.md (čo ďalej), sources.md (zdroje dát),
                      landscape.md (konkurencia), seed-notes*.md (overenie riadkov)
 ```
 
+## Bezpečnosť
+
+Audit podľa checklistu pre kód písaný s AI, vrátane toho, čo sa opraviť
+nepodarilo a prečo, je v `SECURITY.md`.
+
 ## Bezpečnosť dát
 
 RLS je zapnuté na všetkých tabuľkách. Anonymný kľúč číta iba riadky so stavom
