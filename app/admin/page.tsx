@@ -144,6 +144,12 @@ export default async function AdminPage({ searchParams }: PageProps<'/admin'>) {
             {TABS[key]}
           </Link>
         ))}
+        <Link
+          href="/admin/new"
+          className="ml-auto border border-accent px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent hover:text-accent-ink"
+        >
+          Pridať z URL
+        </Link>
       </nav>
 
       {tab === 'published' && (

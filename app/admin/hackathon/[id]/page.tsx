@@ -25,10 +25,13 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default async function EditHackathonPage({
   params,
+  searchParams,
 }: PageProps<'/admin/hackathon/[id]'>) {
   await requireAdmin()
   const { id } = await params
   if (!UUID.test(id)) notFound()
+
+  const duplicate = (await searchParams).duplicate === '1'
 
   const { data: row, error } = await createAdminClient()
     .from('hackathons_admin')
@@ -79,6 +82,12 @@ export default async function EditHackathonPage({
         {STATUS_LABELS[row.status ?? ''] ?? row.status} · {row.source}
         {row.edited_at && ' · ručne upravené'}
       </p>
+
+      {duplicate && (
+        <p className="mt-4 border-l-4 border-accent bg-surface p-3 text-sm text-muted">
+          Podujatie už v databáze bolo. Údaje sa doplnili do existujúceho záznamu.
+        </p>
+      )}
 
       <div className="mt-4">
         <ModerationActions
