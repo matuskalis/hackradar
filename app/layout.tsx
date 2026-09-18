@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Archivo, JetBrains_Mono } from 'next/font/google'
+import { AdminHeaderLink } from '@/components/admin/AdminHeaderLink'
 import './globals.css'
 
 const archivo = Archivo({
@@ -39,7 +40,8 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             Hack<span className="text-accent">Radar</span>
           </Link>
 
-          <nav>
+          <nav className="flex items-center gap-2">
+            <AdminHeaderLink />
             <Link
               href="/pridat"
               className="border border-bar-ink/40 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:bg-accent hover:border-accent"

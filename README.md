@@ -35,6 +35,7 @@ premennými; lokálne hodnoty pre prvé tri vypíše `supabase status`.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | verejný kľúč, číta len zverejnené riadky |
 | `SUPABASE_SERVICE_ROLE_KEY` | zápisy zo servera a zo skriptov, **nikdy nesmie ísť do prehliadača** |
 | `NEXT_PUBLIC_SITE_URL` | absolútna adresa webu, číta ju sitemap, canonical aj ICS |
+| `ADMIN_EMAILS` | e-maily s prístupom do `/admin`, oddelené čiarkou |
 | `NEXT_PUBLIC_MAP_STYLE_URL` | svetlý štýl mapy, predvolene OpenFreeMap Liberty |
 | `NEXT_PUBLIC_MAP_STYLE_DARK_URL` | tmavý štýl mapy, predvolene OpenFreeMap Dark |
 
@@ -74,8 +75,16 @@ automatizáciu dovoľujú, nepribúdali stredoeurópske podujatia; za celý ich 
 prišlo jedno zo 106. Prehľad preverených zdrojov aj s dôvodmi zostáva
 v `docs/sources.md`.
 
-Schvaľovanie zatiaľ nemá vlastné rozhranie. Riadok sa zverejní prepnutím
-`status` na `published` v Supabase Studiu. Admin rozhranie je až fáza 2.
+Schvaľovanie beží na `/admin`. Prihlásenie je magic link cez Supabase, prístup
+majú len adresy v `ADMIN_EMAILS`. Lokálne odoslaný e-mail nájdete v Mailpite na
+`http://127.0.0.1:54524`. Záložka *Na schválenie* má akcie schváliť a zamietnuť,
+záložka *Zverejnené* vie podujatie zrušiť, obe vedú na úpravu s mapou, kde sa
+poloha nastaví ťahaním pinu.
+
+Rozhodnutie moderátora je trvalé: zapisovacia cesta nikdy neprepíše `status`
+existujúceho riadku a riadok s vyplneným `edited_at` (čokoľvek, čo admin ručne
+upravil) už z importu dostane len to, čo v ňom chýba. Zamietnutý riadok teda
+zostáva zamietnutý aj po `npm run seed`.
 
 ### Deduplikácia
 
@@ -141,7 +150,8 @@ do 90 dní, takže bez dopĺňania sa mapa vyprázdni sama.
 - Maďarsko a Rakúsko sú najslabšie pokryté. Maďarské zdroje boli počas
   výskumu zväčša nedostupné alebo blokované, rakúske firemné a univerzitné
   stránky verejné hackathony neuvádzali.
-- Bez účtov, upozornení a admin rozhrania. To je fáza 2.
+- Bez účtov pre návštevníkov a bez upozornení. Administrácia je len pre
+  adresy z `ADMIN_EMAILS`.
 
 ## Kontakt
 

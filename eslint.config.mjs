@@ -7,6 +7,8 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
+    // Git worktrees for parallel agents, with their own build output inside.
+    ".claude/**",
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",

@@ -1,0 +1,156 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { z } from 'zod'
+import { requireAdmin } from '@/lib/auth/admin'
+import { createAdminClient, createServerSupabaseClient } from '@/lib/db/supabase'
+import { geocode } from '@/lib/geocode'
+import { setStatus, updateByAdmin } from '@/lib/hackathons/moderation'
+import { adminEditSchema } from '@/lib/validation/schemas'
+
+export type AdminActionState = { error: string | null; ok: string | null }
+
+const moderateSchema = z.object({
+  id: z.uuid(),
+  status: z.enum(['pending', 'published', 'rejected', 'cancelled']),
+})
+
+const NEEDS_LOCATION =
+  'Zverejniť sa dá len podujatie so súradnicami. Doplňte polohu v úprave a skúste znova.'
+
+/** The Postgres check constraint that guards published on-site rows. */
+function isMissingLocation(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    (error as { code?: string }).code === '23514' &&
+    String((error as { message?: string }).message ?? '').includes(
+      'hackathons_published_needs_location'
+    )
+  )
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  name: 'názov',
+  description: 'popis',
+  start_at: 'začiatok',
+  end_at: 'koniec',
+  timezone: 'časové pásmo',
+  format: 'formát',
+  venue_name: 'miesto konania',
+  address: 'adresa',
+  city: 'mesto',
+  country_code: 'krajina',
+  lat: 'poloha',
+  lng: 'poloha',
+  location_precision: 'poloha',
+  url: 'web hackathonu',
+  registration_url: 'odkaz na registráciu',
+  registration_deadline: 'uzávierka registrácie',
+  themes: 'témy',
+  eligibility: 'pre koho',
+  price_cents: 'vstupné',
+  currency: 'mena',
+  prizes: 'ceny',
+  capacity: 'kapacita',
+  organizer_name: 'organizátor',
+}
+
+/**
+ * Cached public surfaces that show an event: the map, its detail page and the
+ * city landing pages, which are prerendered.
+ */
+function revalidatePublic(slug: string): void {
+  revalidatePath('/')
+  revalidatePath(`/hackathon/${slug}`)
+  revalidatePath('/hackathony/[city]', 'page')
+  revalidatePath('/sitemap.xml')
+  revalidatePath('/admin')
+}
+
+export async function moderateAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin()
+
+  const parsed = moderateSchema.safeParse({
+    id: formData.get('id'),
+    status: formData.get('status'),
+  })
+  if (!parsed.success) return { error: 'Neplatná požiadavka.', ok: null }
+
+  try {
+    const row = await setStatus(createAdminClient(), parsed.data.id, parsed.data.status)
+    revalidatePublic(row.slug)
+  } catch (error) {
+    if (isMissingLocation(error)) return { error: NEEDS_LOCATION, ok: null }
+    console.error('moderation failed', error)
+    return { error: 'Zmena stavu zlyhala. Skúste to znova.', ok: null }
+  }
+
+  return { error: null, ok: 'Hotovo.' }
+}
+
+export async function saveHackathonAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin()
+
+  const id = z.uuid().safeParse(formData.get('id'))
+  if (!id.success) return { error: 'Neplatná požiadavka.', ok: null }
+
+  const parsed = adminEditSchema.safeParse({
+    ...Object.fromEntries(formData.entries()),
+    themes: formData.getAll('themes'),
+  })
+  if (!parsed.success) {
+    const labels = Object.keys(z.flattenError(parsed.error).fieldErrors).map(
+      (key) => FIELD_LABELS[key] ?? key
+    )
+    const fields = [...new Set(labels)].join(', ')
+    return { error: `Skontrolujte polia: ${fields}.`, ok: null }
+  }
+
+  try {
+    const row = await updateByAdmin(createAdminClient(), id.data, parsed.data)
+    revalidatePublic(row.slug)
+  } catch (error) {
+    if (isMissingLocation(error)) return { error: NEEDS_LOCATION, ok: null }
+    console.error('admin edit failed', error)
+    return { error: 'Uloženie zlyhalo. Skúste to znova.', ok: null }
+  }
+
+  return { error: null, ok: 'Uložené.' }
+}
+
+export type GeocodeResponse =
+  | { ok: true; lat: number; lng: number; precision: 'venue' | 'city' }
+  | { ok: false; error: string }
+
+/** Used by the location picker's "geocode address" button. */
+export async function geocodeAddressAction(parts: {
+  address: string | null
+  city: string | null
+  country_code: string | null
+}): Promise<GeocodeResponse> {
+  await requireAdmin()
+
+  try {
+    const point = await geocode(createAdminClient(), parts)
+    if (!point) return { ok: false, error: 'Adresu sa nepodarilo nájsť.' }
+    return { ok: true, ...point }
+  } catch (error) {
+    console.error('admin geocode failed', error)
+    return { ok: false, error: 'Geokódovanie je dočasne nedostupné.' }
+  }
+}
+
+export async function signOutAction(): Promise<void> {
+  await requireAdmin()
+  const supabase = await createServerSupabaseClient()
+  await supabase.auth.signOut()
+  redirect('/admin/login')
+}

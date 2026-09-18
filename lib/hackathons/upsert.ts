@@ -1,5 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database, Tables, TablesInsert } from '@/lib/db/database.types'
+import type {
+  Database,
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from '@/lib/db/database.types'
 import { normalizeName, slugForEvent, urlKey } from './normalize'
 
 export type HackathonInput = {
@@ -57,7 +62,57 @@ const MERGEABLE_COLUMNS = [
   'organizer_name',
 ] as const
 
-function toRow(input: HackathonInput): Omit<TablesInsert<'hackathons'>, 'slug'> {
+/** The shape an insert or a full update writes, before the slug is resolved. */
+export type HackathonColumns = Omit<TablesInsert<'hackathons'>, 'slug'>
+
+/**
+ * What an update needs to know about the row it is about to overwrite. A full
+ * `hackathons` row satisfies it; tests pass only the columns they care about.
+ */
+export type ExistingColumns = Pick<
+  HackathonRow,
+  (typeof MERGEABLE_COLUMNS)[number] | 'location' | 'location_precision' | 'edited_at'
+>
+
+function fillNulls(
+  existing: ExistingColumns,
+  incoming: HackathonColumns
+): TablesUpdate<'hackathons'> {
+  const filled: TablesUpdate<'hackathons'> = {}
+
+  for (const column of MERGEABLE_COLUMNS) {
+    if (existing[column] == null && incoming[column] != null) {
+      Object.assign(filled, { [column]: incoming[column] })
+    }
+  }
+  if (existing.location == null && incoming.location != null) {
+    filled.location = incoming.location
+    filled.location_precision = incoming.location_precision
+  }
+
+  return filled
+}
+
+/**
+ * Columns an automated write may set on a row that already exists.
+ *
+ * `status` is never among them: moderation is decided in the admin, not by
+ * whatever import ran last, so a rejected row stays rejected. A row an admin
+ * has edited by hand keeps every value it has and only gets its still-empty
+ * columns filled, the same rule the cross-source merge uses.
+ */
+export function columnsForUpdate(
+  existing: ExistingColumns,
+  incoming: HackathonColumns
+): TablesUpdate<'hackathons'> {
+  if (existing.edited_at != null) return fillNulls(existing, incoming)
+
+  const writable: TablesUpdate<'hackathons'> = { ...incoming }
+  delete writable.status
+  return writable
+}
+
+function toRow(input: HackathonInput): HackathonColumns {
   const hasPoint = input.lat != null && input.lng != null
 
   return {
@@ -142,6 +197,18 @@ export function isSameEvent(
   return key != null && urlKey(candidate.registration_url ?? candidate.url) === key
 }
 
+async function applyUpdate(
+  db: Db,
+  existing: HackathonRow,
+  incoming: HackathonColumns
+): Promise<void> {
+  const columns = columnsForUpdate(existing, incoming)
+  if (Object.keys(columns).length === 0) return
+
+  const { error } = await db.from('hackathons').update(columns).eq('id', existing.id)
+  if (error) throw error
+}
+
 /** Loads same-week rows and returns the first one describing the same event. */
 async function findDuplicate(
   db: Db,
@@ -173,18 +240,14 @@ export async function upsertHackathon(
   if (input.source_id) {
     const { data: bySource, error } = await db
       .from('hackathons')
-      .select('id, slug')
+      .select('*')
       .eq('source', input.source)
       .eq('source_id', input.source_id)
       .maybeSingle()
     if (error) throw error
 
     if (bySource) {
-      const { error: updateError } = await db
-        .from('hackathons')
-        .update(row)
-        .eq('id', bySource.id)
-      if (updateError) throw updateError
+      await applyUpdate(db, bySource, row)
       return { action: 'updated', id: bySource.id, slug: bySource.slug }
     }
   }
@@ -193,24 +256,11 @@ export async function upsertHackathon(
 
   if (duplicate) {
     if (duplicate.source === input.source) {
-      const { error } = await db
-        .from('hackathons')
-        .update(row)
-        .eq('id', duplicate.id)
-      if (error) throw error
+      await applyUpdate(db, duplicate, row)
       return { action: 'updated', id: duplicate.id, slug: duplicate.slug }
     }
 
-    const filled: Record<string, unknown> = {}
-    for (const column of MERGEABLE_COLUMNS) {
-      if (duplicate[column] == null && row[column] != null) {
-        filled[column] = row[column]
-      }
-    }
-    if (duplicate.location == null && row.location != null) {
-      filled.location = row.location
-      filled.location_precision = row.location_precision
-    }
+    const filled = fillNulls(duplicate, row)
 
     const extraSources = Array.isArray(duplicate.extra_sources)
       ? duplicate.extra_sources

@@ -102,6 +102,53 @@ export const submitSchema = z
 
 export type SubmitInput = z.infer<typeof submitSchema>
 
+/**
+ * The admin edit form. Every field arrives as a string, and an empty field
+ * means "no value", not "empty string": the columns are nullable and the map,
+ * the list and the JSON-LD all treat null as missing.
+ */
+const blank = (value: unknown) =>
+  value === undefined || (typeof value === 'string' && value.trim() === '') ? null : value
+
+const nullable = <T extends z.ZodType>(inner: T) => z.preprocess(blank, inner.nullable())
+
+export const adminEditSchema = z
+  .object({
+    name: z.string().trim().min(3).max(120),
+    description: nullable(z.string().trim().max(4000)),
+    start_at: isoDateTime,
+    end_at: isoDateTime,
+    timezone: z.string().trim().min(3).max(64),
+    format: formatEnum,
+    venue_name: nullable(z.string().trim().max(160)),
+    address: nullable(z.string().trim().max(240)),
+    city: nullable(z.string().trim().min(2).max(80)),
+    country_code: nullable(countryEnum),
+    lat: nullable(z.coerce.number().min(-90).max(90)),
+    lng: nullable(z.coerce.number().min(-180).max(180)),
+    location_precision: nullable(z.enum(['venue', 'city'])),
+    url: nullable(z.url()),
+    registration_url: nullable(z.url()),
+    registration_deadline: nullable(isoDateTime),
+    themes: z.array(themeEnum).max(5).default([]),
+    eligibility: nullable(eligibilityEnum),
+    price_cents: nullable(z.coerce.number().int().min(0).max(10_000_00)),
+    currency: z.enum(['EUR', 'CZK', 'PLN', 'HUF']).default('EUR'),
+    prizes: nullable(z.string().trim().max(500)),
+    capacity: nullable(z.coerce.number().int().min(1).max(100_000)),
+    organizer_name: nullable(z.string().trim().max(120)),
+  })
+  .refine((value) => new Date(value.end_at) >= new Date(value.start_at), {
+    message: 'Koniec nesmie byť pred začiatkom.',
+    path: ['end_at'],
+  })
+  .refine((value) => (value.lat == null) === (value.lng == null), {
+    message: 'Zadajte obe súradnice, alebo ani jednu.',
+    path: ['lat'],
+  })
+
+export type AdminEditInput = z.infer<typeof adminEditSchema>
+
 /** One row of scripts/seed/hackathons.csv. */
 export const csvRowSchema = z
   .object({
