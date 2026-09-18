@@ -7,6 +7,7 @@ import { requireAdmin } from '@/lib/auth/admin'
 import { createAdminClient, createServerSupabaseClient } from '@/lib/db/supabase'
 import { geocode } from '@/lib/geocode'
 import { setStatus, updateByAdmin } from '@/lib/hackathons/moderation'
+import { rollRecurringEvents } from '@/lib/hackathons/recurrence'
 import { adminEditSchema } from '@/lib/validation/schemas'
 
 export type AdminActionState = { error: string | null; ok: string | null }
@@ -14,6 +15,11 @@ export type AdminActionState = { error: string | null; ok: string | null }
 const moderateSchema = z.object({
   id: z.uuid(),
   status: z.enum(['pending', 'published', 'rejected', 'cancelled']),
+})
+
+const recurrenceSchema = z.object({
+  id: z.uuid(),
+  recurrence: z.enum(['none', 'annual']),
 })
 
 const NEEDS_LOCATION =
@@ -55,6 +61,7 @@ const FIELD_LABELS: Record<string, string> = {
   prizes: 'ceny',
   capacity: 'kapacita',
   organizer_name: 'organizátor',
+  recurrence: 'opakovanie',
 }
 
 /**
@@ -124,6 +131,53 @@ export async function saveHackathonAction(
   }
 
   return { error: null, ok: 'Uložené.' }
+}
+
+/**
+ * "Opakuje sa každý rok" on the attention tab. Goes through `updateByAdmin`
+ * like every other hand correction, so the claim is stamped with `edited_at`
+ * and the next roll picks the event up.
+ */
+export async function setRecurrenceAction(
+  _state: AdminActionState,
+  formData: FormData
+): Promise<AdminActionState> {
+  await requireAdmin()
+
+  const parsed = recurrenceSchema.safeParse({
+    id: formData.get('id'),
+    recurrence: formData.get('recurrence'),
+  })
+  if (!parsed.success) return { error: 'Neplatná požiadavka.', ok: null }
+
+  try {
+    const row = await updateByAdmin(createAdminClient(), parsed.data.id, {
+      recurrence: parsed.data.recurrence,
+    })
+    revalidatePublic(row.slug)
+  } catch (error) {
+    console.error('recurrence change failed', error)
+    return { error: 'Zmena zlyhala. Skúste to znova.', ok: null }
+  }
+
+  return { error: null, ok: 'Uložené.' }
+}
+
+/** The same job the daily cron runs, on demand. Takes no input. */
+export async function runRecurringAction(): Promise<AdminActionState> {
+  await requireAdmin()
+
+  try {
+    const counts = await rollRecurringEvents(createAdminClient(), new Date())
+    revalidatePath('/admin')
+    return {
+      error: null,
+      ok: `Hotovo: ${counts.created} nových ročníkov z ${counts.candidates} opakovaných podujatí.`,
+    }
+  } catch (error) {
+    console.error('recurring roll failed', error)
+    return { error: 'Spustenie zlyhalo. Skúste to znova.', ok: null }
+  }
 }
 
 export type GeocodeResponse =

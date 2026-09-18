@@ -5,6 +5,7 @@ const formatEnum = z.enum(['onsite', 'online', 'hybrid'])
 const themeEnum = z.enum(THEME_SLUGS)
 const eligibilityEnum = z.enum(ELIGIBILITY_SLUGS)
 const countryEnum = z.enum(['SK', 'CZ', 'AT', 'HU', 'PL', 'DE'])
+const recurrenceEnum = z.enum(['none', 'annual'])
 
 const isoDateTime = z.iso.datetime({ offset: true })
 
@@ -137,6 +138,7 @@ export const adminEditSchema = z
     prizes: nullable(z.string().trim().max(500)),
     capacity: nullable(z.coerce.number().int().min(1).max(100_000)),
     organizer_name: nullable(z.string().trim().max(120)),
+    recurrence: recurrenceEnum.default('none'),
   })
   .refine((value) => new Date(value.end_at) >= new Date(value.start_at), {
     message: 'Koniec nesmie byť pred začiatkom.',
@@ -177,6 +179,7 @@ export const csvRowSchema = z
     capacity: z.coerce.number().int().min(1).optional(),
     organizer_name: z.string().trim().optional(),
     source_url: z.url().optional(),
+    recurrence: recurrenceEnum.optional(),
   })
   .refine((value) => new Date(value.end_at) >= new Date(value.start_at), {
     message: 'end_at must not be before start_at',

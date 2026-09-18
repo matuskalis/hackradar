@@ -35,7 +35,11 @@ export type HackathonInput = {
   source_id?: string | null
   source_url?: string | null
   status: Database['public']['Enums']['hackathon_status']
+  recurrence?: Recurrence
+  parent_id?: string | null
 }
+
+export type Recurrence = 'none' | 'annual'
 
 export type UpsertAction = 'inserted' | 'updated' | 'merged'
 export type UpsertResult = { action: UpsertAction; id: string; slug: string }
@@ -97,9 +101,11 @@ function fillNulls(
  * Columns an automated write may set on a row that already exists.
  *
  * `status` is never among them: moderation is decided in the admin, not by
- * whatever import ran last, so a rejected row stays rejected. A row an admin
- * has edited by hand keeps every value it has and only gets its still-empty
- * columns filled, the same rule the cross-source merge uses.
+ * whatever import ran last, so a rejected row stays rejected. Neither is
+ * `parent_id`: only the recurrence roll links an edition to the one before it,
+ * and an import that happens to match a child must not unlink it. A row an
+ * admin has edited by hand keeps every value it has and only gets its
+ * still-empty columns filled, the same rule the cross-source merge uses.
  */
 export function columnsForUpdate(
   existing: ExistingColumns,
@@ -109,6 +115,7 @@ export function columnsForUpdate(
 
   const writable: TablesUpdate<'hackathons'> = { ...incoming }
   delete writable.status
+  delete writable.parent_id
   return writable
 }
 
@@ -143,6 +150,8 @@ function toRow(input: HackathonInput): HackathonColumns {
     source_id: input.source_id ?? null,
     source_url: input.source_url ?? null,
     status: input.status,
+    recurrence: input.recurrence ?? 'none',
+    parent_id: input.parent_id ?? null,
   }
 }
 

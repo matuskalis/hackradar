@@ -65,6 +65,7 @@ export default async function EditHackathonPage({
     prizes: row.prizes,
     capacity: row.capacity,
     organizer_name: row.organizer_name,
+    recurrence: row.recurrence === 'annual' ? 'annual' : 'none',
   }
 
   return (

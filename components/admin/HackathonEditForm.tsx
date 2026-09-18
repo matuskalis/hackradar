@@ -63,7 +63,13 @@ export type EditableHackathon = {
   prizes: string | null
   capacity: number | null
   organizer_name: string | null
+  recurrence: 'none' | 'annual'
 }
+
+const RECURRENCE = {
+  none: 'Jednorazové',
+  annual: 'Každý rok',
+} as const
 
 const initial: AdminActionState = { error: null, ok: null }
 
@@ -71,6 +77,7 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
   const [state, formAction, pending] = useActionState(saveHackathonAction, initial)
   const [format, setFormat] = useState(event.format)
   const [themes, setThemes] = useState<string[]>(event.themes)
+  const [recurrence, setRecurrence] = useState(event.recurrence)
   const [point, setPoint] = useState<{ lat: number; lng: number } | null>(
     event.lat != null && event.lng != null ? { lat: event.lat, lng: event.lng } : null
   )
@@ -371,6 +378,27 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
         {themes.map((slug) => (
           <input key={slug} type="hidden" name="themes" value={slug} />
         ))}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="label">Opakovanie</span>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(RECURRENCE).map(([slug, text]) => (
+            <button
+              key={slug}
+              type="button"
+              onClick={() => setRecurrence(slug as typeof recurrence)}
+              className={cn(chip, recurrence === slug && chipOn)}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted">
+          Po skončení každoročného podujatia vznikne ďalší ročník na potvrdenie: ten
+          istý víkend o 52 týždňov neskôr.
+        </p>
+        <input type="hidden" name="recurrence" value={recurrence} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

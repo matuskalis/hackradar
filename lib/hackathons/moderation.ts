@@ -31,6 +31,7 @@ export type AdminPatch = {
   prizes?: string | null
   capacity?: number | null
   organizer_name?: string | null
+  recurrence?: 'none' | 'annual'
 }
 
 export type ModerationResult = { id: string; slug: string; city: string | null }

@@ -36,6 +36,7 @@ premennými; lokálne hodnoty pre prvé tri vypíše `supabase status`.
 | `SUPABASE_SERVICE_ROLE_KEY` | zápisy zo servera a zo skriptov, **nikdy nesmie ísť do prehliadača** |
 | `NEXT_PUBLIC_SITE_URL` | absolútna adresa webu, číta ju sitemap, canonical aj ICS |
 | `ADMIN_EMAILS` | e-maily s prístupom do `/admin`, oddelené čiarkou |
+| `CRON_SECRET` | tajomstvo pre `/api/cron/recurring`; bez neho route vracia 401 |
 | `NEXT_PUBLIC_MAP_STYLE_URL` | svetlý štýl mapy, predvolene OpenFreeMap Liberty |
 | `NEXT_PUBLIC_MAP_STYLE_DARK_URL` | tmavý štýl mapy, predvolene OpenFreeMap Dark |
 
@@ -85,6 +86,22 @@ Rozhodnutie moderátora je trvalé: zapisovacia cesta nikdy neprepíše `status`
 existujúceho riadku a riadok s vyplneným `edited_at` (čokoľvek, čo admin ručne
 upravil) už z importu dostane len to, čo v ňom chýba. Zamietnutý riadok teda
 zostáva zamietnutý aj po `npm run seed`.
+
+### Opakované podujatia
+
+Stĺpec `recurrence` má hodnotu `none` alebo `annual`. Seed ho číta z CSV; keď
+stĺpec chýba, `date_confidence = estimated` znamená `annual`, všetko ostatné
+`none`. Keď každoročné podujatie skončí, denný cron `/api/cron/recurring` z neho
+vyrobí ďalší ročník: rovnaké miesto, odkaz aj témy, termín posunutý o 52 týždňov
+(365 dní by posunulo deň v týždni, hackathony bývajú cez víkend) a štvorčíslie
+roka na konci názvu prepísané. Nový riadok je `pending` a v `parent_id` má
+predchádzajúci ročník. Unikátny index nad `parent_id` robí beh idempotentným:
+druhé spustenie nevyrobí nič.
+
+Cron chráni hlavička `Authorization: Bearer ${CRON_SECRET}`. V `/admin` je to
+isté pod tlačidlom *Spustiť teraz* v záložke *Vyžaduje pozornosť*, ktorá zároveň
+zbiera nové ročníky na potvrdenie termínu a dávno skončené podujatia bez
+označeného opakovania.
 
 ### Deduplikácia
 

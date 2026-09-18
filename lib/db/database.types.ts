@@ -83,8 +83,10 @@ export type Database = {
           name: string
           name_normalized: string
           organizer_name: string | null
+          parent_id: string | null
           price_cents: number | null
           prizes: string | null
+          recurrence: string
           registration_deadline: string | null
           registration_url: string | null
           slug: string
@@ -120,8 +122,10 @@ export type Database = {
           name: string
           name_normalized: string
           organizer_name?: string | null
+          parent_id?: string | null
           price_cents?: number | null
           prizes?: string | null
+          recurrence?: string
           registration_deadline?: string | null
           registration_url?: string | null
           slug: string
@@ -157,8 +161,10 @@ export type Database = {
           name?: string
           name_normalized?: string
           organizer_name?: string | null
+          parent_id?: string | null
           price_cents?: number | null
           prizes?: string | null
+          recurrence?: string
           registration_deadline?: string | null
           registration_url?: string | null
           slug?: string
@@ -173,7 +179,29 @@ export type Database = {
           url?: string | null
           venue_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hackathons_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "hackathons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hackathons_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "hackathons_admin"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hackathons_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "hackathons_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       import_runs: {
         Row: {
@@ -318,8 +346,10 @@ export type Database = {
           name: string | null
           name_normalized: string | null
           organizer_name: string | null
+          parent_id: string | null
           price_cents: number | null
           prizes: string | null
+          recurrence: string | null
           registration_deadline: string | null
           registration_url: string | null
           slug: string | null
@@ -357,8 +387,10 @@ export type Database = {
           name?: string | null
           name_normalized?: string | null
           organizer_name?: string | null
+          parent_id?: string | null
           price_cents?: number | null
           prizes?: string | null
+          recurrence?: string | null
           registration_deadline?: string | null
           registration_url?: string | null
           slug?: string | null
@@ -396,8 +428,10 @@ export type Database = {
           name?: string | null
           name_normalized?: string | null
           organizer_name?: string | null
+          parent_id?: string | null
           price_cents?: number | null
           prizes?: string | null
+          recurrence?: string | null
           registration_deadline?: string | null
           registration_url?: string | null
           slug?: string | null
@@ -412,7 +446,29 @@ export type Database = {
           url?: string | null
           venue_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hackathons_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "hackathons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hackathons_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "hackathons_admin"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hackathons_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "hackathons_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hackathons_public: {
         Row: {

@@ -50,6 +50,10 @@ async function main() {
     // organiser's page are still listed, and reported below so they can be
     // checked against the next edition's announcement.
     const confirmed = cleaned.date_confidence === 'confirmed'
+    // A row was only rolled forward to a guessed date because the series was
+    // evidenced as annual, so an estimated date implies annual recurrence.
+    // An explicit `recurrence` column wins.
+    const estimated = cleaned.date_confidence === 'estimated'
     const parsed = csvRowSchema.safeParse(cleaned)
 
     if (!parsed.success) {
@@ -84,6 +88,7 @@ async function main() {
       source: 'manual',
       source_url: row.source_url ?? row.url ?? null,
       status: 'published',
+      recurrence: row.recurrence ?? (estimated ? 'annual' : 'none'),
     })
     counts[result.action]++
     if (!confirmed) pending.push(row.name)
