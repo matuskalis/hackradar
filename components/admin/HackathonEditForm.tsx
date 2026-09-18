@@ -7,6 +7,7 @@ import {
   saveHackathonAction,
   type AdminActionState,
 } from '@/app/admin/actions'
+import { createHackathonAction } from '@/app/admin/new/actions'
 import { MapSkeleton } from '@/components/map/HackMap'
 import { DEFAULT_CITY } from '@/lib/cities'
 import { ELIGIBILITY, FORMATS, THEMES } from '@/lib/taxonomy'
@@ -39,7 +40,8 @@ const secondaryButton =
   'border border-line px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-muted transition-colors hover:border-ink hover:text-ink disabled:opacity-50'
 
 export type EditableHackathon = {
-  id: string
+  /** Null while creating: the row does not exist yet. */
+  id: string | null
   name: string
   description: string | null
   start_at: string
@@ -67,8 +69,20 @@ export type EditableHackathon = {
 
 const initial: AdminActionState = { error: null, ok: null }
 
-export function HackathonEditForm({ event }: { event: EditableHackathon }) {
-  const [state, formAction, pending] = useActionState(saveHackathonAction, initial)
+type Props = {
+  event: EditableHackathon
+  /** Fields the extractor could not find; highlighted so nothing ships empty. */
+  missing?: string[]
+  /** The page the values were extracted from, stored as `source_url`. */
+  sourceUrl?: string | null
+}
+
+export function HackathonEditForm({ event, missing = [], sourceUrl = null }: Props) {
+  const creating = event.id == null
+  const [state, formAction, pending] = useActionState(
+    creating ? createHackathonAction : saveHackathonAction,
+    initial
+  )
   const [format, setFormat] = useState(event.format)
   const [themes, setThemes] = useState<string[]>(event.themes)
   const [point, setPoint] = useState<{ lat: number; lng: number } | null>(
@@ -110,13 +124,34 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
     setPrecision('venue')
   }
 
+  const box = (name: string) => cn(field, missing.includes(name) && 'border-accent')
+  const hint = (name: string) =>
+    missing.includes(name) ? (
+      <span className="label text-accent">Nenájdené, doplňte</span>
+    ) : null
+
   return (
     <form ref={form} action={formAction} className="flex flex-col gap-5">
-      <input type="hidden" name="id" value={event.id} />
+      {event.id != null && <input type="hidden" name="id" value={event.id} />}
+      {creating && sourceUrl != null && (
+        <input type="hidden" name="source_url" value={sourceUrl} />
+      )}
+
+      {creating && (
+        <div className="flex flex-col gap-1">
+          <label htmlFor="status" className="label">
+            Stav po uložení *
+          </label>
+          <select id="status" name="status" defaultValue="published" className={field}>
+            <option value="published">Zverejniť hneď</option>
+            <option value="pending">Nechať na schválenie</option>
+          </select>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="name" className="label">
-          Názov *
+          Názov * {hint('name')}
         </label>
         <input
           id="name"
@@ -124,7 +159,7 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
           required
           minLength={3}
           defaultValue={event.name}
-          className={field}
+          className={box('name')}
         />
       </div>
 
@@ -144,44 +179,44 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1">
           <label htmlFor="start_at" className="label">
-            Začiatok (ISO 8601) *
+            Začiatok (ISO 8601) * {hint('start_at')}
           </label>
           <input
             id="start_at"
             name="start_at"
             required
             defaultValue={event.start_at}
-            className={cn(field, 'data')}
+            className={cn(box('start_at'), 'data')}
           />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="end_at" className="label">
-            Koniec (ISO 8601) *
+            Koniec (ISO 8601) * {hint('end_at')}
           </label>
           <input
             id="end_at"
             name="end_at"
             required
             defaultValue={event.end_at}
-            className={cn(field, 'data')}
+            className={cn(box('end_at'), 'data')}
           />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="timezone" className="label">
-            Časové pásmo *
+            Časové pásmo * {hint('timezone')}
           </label>
           <input
             id="timezone"
             name="timezone"
             required
             defaultValue={event.timezone}
-            className={field}
+            className={box('timezone')}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="label">Formát *</span>
+        <span className="label">Formát * {hint('format')}</span>
         <div className="flex flex-wrap gap-2">
           {Object.entries(FORMATS).map(([slug, text]) => (
             <button
@@ -222,19 +257,24 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="city" className="label">
-            Mesto
+            Mesto {hint('city')}
           </label>
-          <input id="city" name="city" defaultValue={event.city ?? ''} className={field} />
+          <input
+            id="city"
+            name="city"
+            defaultValue={event.city ?? ''}
+            className={box('city')}
+          />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="country_code" className="label">
-            Krajina
+            Krajina {hint('country_code')}
           </label>
           <select
             id="country_code"
             name="country_code"
             defaultValue={event.country_code ?? ''}
-            className={field}
+            className={box('country_code')}
           >
             <option value="">—</option>
             {Object.entries(COUNTRIES).map(([code, name]) => (
@@ -297,14 +337,14 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="url" className="label">
-            Web hackathonu
+            Web hackathonu {hint('url')}
           </label>
           <input
             id="url"
             name="url"
             type="url"
             defaultValue={event.url ?? ''}
-            className={field}
+            className={box('url')}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -332,13 +372,13 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="organizer_name" className="label">
-            Organizátor
+            Organizátor {hint('organizer_name')}
           </label>
           <input
             id="organizer_name"
             name="organizer_name"
             defaultValue={event.organizer_name ?? ''}
-            className={field}
+            className={box('organizer_name')}
           />
         </div>
       </div>
@@ -465,7 +505,7 @@ export function HackathonEditForm({ event }: { event: EditableHackathon }) {
         disabled={pending}
         className="self-start bg-accent px-5 py-3 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
       >
-        {pending ? 'Ukladám…' : 'Uložiť zmeny'}
+        {pending ? 'Ukladám…' : creating ? 'Vytvoriť podujatie' : 'Uložiť zmeny'}
       </button>
     </form>
   )
