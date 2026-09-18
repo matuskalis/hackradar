@@ -86,6 +86,7 @@ export function blankFormValues(): EditableHackathon {
     end_at: '',
     timezone: DEFAULT_TIMEZONE,
     format: 'onsite',
+    recurrence: 'none',
     venue_name: null,
     address: null,
     city: null,

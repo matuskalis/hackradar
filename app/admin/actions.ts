@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { invalidFieldsMessage, isMissingLocation, NEEDS_LOCATION } from '@/lib/admin/errors'
+import { revalidatePublic } from '@/lib/admin/revalidate'
 import { requireAdmin } from '@/lib/auth/admin'
 import { createAdminClient, createServerSupabaseClient } from '@/lib/db/supabase'
 import { geocode } from '@/lib/geocode'
@@ -21,60 +23,6 @@ const recurrenceSchema = z.object({
   id: z.uuid(),
   recurrence: z.enum(['none', 'annual']),
 })
-
-const NEEDS_LOCATION =
-  'Zverejniť sa dá len podujatie so súradnicami. Doplňte polohu v úprave a skúste znova.'
-
-/** The Postgres check constraint that guards published on-site rows. */
-function isMissingLocation(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    (error as { code?: string }).code === '23514' &&
-    String((error as { message?: string }).message ?? '').includes(
-      'hackathons_published_needs_location'
-    )
-  )
-}
-
-const FIELD_LABELS: Record<string, string> = {
-  name: 'názov',
-  description: 'popis',
-  start_at: 'začiatok',
-  end_at: 'koniec',
-  timezone: 'časové pásmo',
-  format: 'formát',
-  venue_name: 'miesto konania',
-  address: 'adresa',
-  city: 'mesto',
-  country_code: 'krajina',
-  lat: 'poloha',
-  lng: 'poloha',
-  location_precision: 'poloha',
-  url: 'web hackathonu',
-  registration_url: 'odkaz na registráciu',
-  registration_deadline: 'uzávierka registrácie',
-  themes: 'témy',
-  eligibility: 'pre koho',
-  price_cents: 'vstupné',
-  currency: 'mena',
-  prizes: 'ceny',
-  capacity: 'kapacita',
-  organizer_name: 'organizátor',
-  recurrence: 'opakovanie',
-}
-
-/**
- * Cached public surfaces that show an event: the map, its detail page and the
- * city landing pages, which are prerendered.
- */
-function revalidatePublic(slug: string): void {
-  revalidatePath('/')
-  revalidatePath(`/hackathon/${slug}`)
-  revalidatePath('/hackathony/[city]', 'page')
-  revalidatePath('/sitemap.xml')
-  revalidatePath('/admin')
-}
 
 export async function moderateAction(
   _state: AdminActionState,
@@ -114,11 +62,7 @@ export async function saveHackathonAction(
     themes: formData.getAll('themes'),
   })
   if (!parsed.success) {
-    const labels = Object.keys(z.flattenError(parsed.error).fieldErrors).map(
-      (key) => FIELD_LABELS[key] ?? key
-    )
-    const fields = [...new Set(labels)].join(', ')
-    return { error: `Skontrolujte polia: ${fields}.`, ok: null }
+    return { error: invalidFieldsMessage(parsed.error), ok: null }
   }
 
   try {

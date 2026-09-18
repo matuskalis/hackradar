@@ -39,6 +39,7 @@ const FIELD_LABELS: Record<string, string> = {
   prizes: 'ceny',
   capacity: 'kapacita',
   organizer_name: 'organizátor',
+  recurrence: 'opakovanie',
   status: 'stav',
 }
 
