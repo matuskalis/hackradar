@@ -27,7 +27,11 @@ export async function GET(request: Request) {
     return Response.json({ error: 'unauthorized' }, { status: 401 })
   }
 
-  const counts = await rollRecurringEvents(createAdminClient(), new Date())
-
-  return Response.json(counts, { headers: { 'Cache-Control': 'no-store' } })
+  try {
+    const counts = await rollRecurringEvents(createAdminClient(), new Date())
+    return Response.json(counts, { headers: { 'Cache-Control': 'no-store' } })
+  } catch (error) {
+    console.error('recurring roll failed', error)
+    return Response.json({ error: 'roll failed' }, { status: 500 })
+  }
 }

@@ -9,6 +9,9 @@ const recurrenceEnum = z.enum(['none', 'annual'])
 
 const isoDateTime = z.iso.datetime({ offset: true })
 
+/** `z.url()` alone accepts `javascript:` and `data:`; these end up in an href. */
+const httpUrl = z.url({ protocol: /^https?$/ })
+
 const csvList = <T extends z.ZodType<string, string>>(inner: T) =>
   z
     .string()
@@ -79,8 +82,8 @@ export const submitSchema = z
     address: z.string().trim().max(240).optional(),
     city: z.string().trim().min(2).max(80).optional(),
     country_code: countryEnum.optional(),
-    url: z.url(),
-    registration_url: z.url().optional(),
+    url: httpUrl,
+    registration_url: httpUrl.optional(),
     registration_deadline: isoDateTime.optional(),
     themes: z.array(themeEnum).max(5).default([]),
     eligibility: eligibilityEnum.optional(),
@@ -128,8 +131,8 @@ export const adminEditSchema = z
     lat: nullable(z.coerce.number().min(-90).max(90)),
     lng: nullable(z.coerce.number().min(-180).max(180)),
     location_precision: nullable(z.enum(['venue', 'city'])),
-    url: nullable(z.url()),
-    registration_url: nullable(z.url()),
+    url: nullable(httpUrl),
+    registration_url: nullable(httpUrl),
     registration_deadline: nullable(isoDateTime),
     themes: z.array(themeEnum).max(5).default([]),
     eligibility: nullable(eligibilityEnum),
@@ -164,8 +167,8 @@ export const csvRowSchema = z
     address: z.string().trim().optional(),
     city: z.string().trim().optional(),
     country_code: countryEnum.optional(),
-    url: z.url().optional(),
-    registration_url: z.url().optional(),
+    url: httpUrl.optional(),
+    registration_url: httpUrl.optional(),
     registration_deadline: isoDateTime.optional(),
     themes: z
       .string()
@@ -178,7 +181,7 @@ export const csvRowSchema = z
     prizes: z.string().trim().optional(),
     capacity: z.coerce.number().int().min(1).optional(),
     organizer_name: z.string().trim().optional(),
-    source_url: z.url().optional(),
+    source_url: httpUrl.optional(),
     recurrence: recurrenceEnum.optional(),
   })
   .refine((value) => new Date(value.end_at) >= new Date(value.start_at), {

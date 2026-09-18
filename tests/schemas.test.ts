@@ -125,3 +125,20 @@ describe('csvRowSchema', () => {
     }
   })
 })
+
+describe('event URLs', () => {
+  it.each(['javascript:alert(1)', 'data:text/html,<b>x</b>', 'mailto:a@example.com'])(
+    'rejects %s, which would end up in an href',
+    (url) => {
+      expect(submitSchema.safeParse({ ...validSubmit, url }).success).toBe(false)
+      expect(
+        submitSchema.safeParse({ ...validSubmit, registration_url: url }).success
+      ).toBe(false)
+    }
+  )
+
+  it('accepts http and https', () => {
+    expect(submitSchema.safeParse({ ...validSubmit, url: 'http://example.sk/' }).success).toBe(true)
+    expect(submitSchema.safeParse({ ...validSubmit, url: 'HTTPS://example.sk/' }).success).toBe(true)
+  })
+})

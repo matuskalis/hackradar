@@ -103,7 +103,9 @@ function fillNulls(
  * `status` is never among them: moderation is decided in the admin, not by
  * whatever import ran last, so a rejected row stays rejected. Neither is
  * `parent_id`: only the recurrence roll links an edition to the one before it,
- * and an import that happens to match a child must not unlink it. A row an
+ * and an import that happens to match a child must not unlink it. `recurrence`
+ * is only ever raised to `annual`: a source that does not mention it must not
+ * end a series the roll or an earlier seed established. A row an
  * admin has edited by hand keeps every value it has and only gets its
  * still-empty columns filled, the same rule the cross-source merge uses.
  */
@@ -116,6 +118,7 @@ export function columnsForUpdate(
   const writable: TablesUpdate<'hackathons'> = { ...incoming }
   delete writable.status
   delete writable.parent_id
+  if (writable.recurrence !== 'annual') delete writable.recurrence
   return writable
 }
 
@@ -219,7 +222,7 @@ async function applyUpdate(
 }
 
 /** Loads same-week rows and returns the first one describing the same event. */
-async function findDuplicate(
+export async function findDuplicate(
   db: Db,
   input: HackathonInput
 ): Promise<HackathonRow | null> {
@@ -233,6 +236,20 @@ async function findDuplicate(
   if (error) throw error
 
   return (data ?? []).find((row) => isSameEvent(row, input)) ?? null
+}
+
+/**
+ * Marks an existing row as the next edition of `parentId`. Used by the
+ * recurrence roll when the next edition is already in the database, so the
+ * guessed dates never overwrite a real record.
+ */
+export async function linkToParent(db: Db, id: string, parentId: string): Promise<void> {
+  const { error } = await db
+    .from('hackathons')
+    .update({ parent_id: parentId })
+    .eq('id', id)
+    .is('parent_id', null)
+  if (error) throw error
 }
 
 /**

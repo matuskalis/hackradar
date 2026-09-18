@@ -104,3 +104,15 @@ describe('columnsForUpdate', () => {
     expect(columns.location_precision).toBe('venue')
   })
 })
+
+describe('columnsForUpdate and recurrence', () => {
+  it('never lowers recurrence to none', () => {
+    const columns = columnsForUpdate(existing, { ...incoming, recurrence: 'none' })
+    expect(columns).not.toHaveProperty('recurrence')
+  })
+
+  it('lets a source raise recurrence to annual', () => {
+    const columns = columnsForUpdate(existing, { ...incoming, recurrence: 'annual' })
+    expect(columns.recurrence).toBe('annual')
+  })
+})

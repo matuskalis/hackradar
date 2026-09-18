@@ -116,7 +116,7 @@ export async function runRecurringAction(): Promise<AdminActionState> {
     revalidatePath('/admin')
     return {
       error: null,
-      ok: `Hotovo: ${counts.created} nových ročníkov z ${counts.candidates} opakovaných podujatí.`,
+      ok: `Hotovo: ${counts.created} nových ročníkov, ${counts.linked} prepojených s existujúcim záznamom.`,
     }
   } catch (error) {
     console.error('recurring roll failed', error)

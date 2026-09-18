@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/db/database.types'
-import { upsertHackathon } from './upsert'
+import { findDuplicate, linkToParent, upsertHackathon } from './upsert'
 
 type Db = SupabaseClient<Database>
 type Status = Database['public']['Enums']['hackathon_status']
@@ -77,12 +77,30 @@ export function needsNextEdition(
   return new Date(event.end_at).getTime() < now.getTime()
 }
 
-export type RollCounts = { candidates: number; created: number; skipped: number }
+export type RollCounts = {
+  candidates: number
+  created: number
+  linked: number
+  skipped: number
+}
+
+/** A concurrent roll inserted the child first; the unique index caught it. */
+function isAlreadyRolled(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    (error as { code?: string }).code === '23505' &&
+    String((error as { message?: string }).message ?? '').includes(
+      'hackathons_parent_id_idx'
+    )
+  )
+}
 
 /**
  * Creates the next edition of every annual event that has ended and has no
- * child yet, as a `pending` row for an admin to confirm. Idempotent: a second
- * run finds the children and creates nothing.
+ * child yet, as a `pending` row for an admin to confirm. When the next edition
+ * is already in the database it is linked to its parent instead, untouched.
+ * Idempotent: a second run finds the children and creates nothing.
  */
 export async function rollRecurringEvents(db: Db, now: Date): Promise<RollCounts> {
   // The admin view is the only read surface that hands out coordinates as
@@ -98,13 +116,17 @@ export async function rollRecurringEvents(db: Db, now: Date): Promise<RollCounts
   const { data: children, error: childrenError } = await db
     .from('hackathons')
     .select('parent_id')
-    .not('parent_id', 'is', null)
+    .in(
+      'parent_id',
+      (candidates ?? []).map((row) => row.id!)
+    )
   if (childrenError) throw childrenError
 
   const rolled = new Set((children ?? []).map((child) => child.parent_id))
   const counts: RollCounts = {
     candidates: candidates?.length ?? 0,
     created: 0,
+    linked: 0,
     skipped: 0,
   }
 
@@ -129,7 +151,7 @@ export async function rollRecurringEvents(db: Db, now: Date): Promise<RollCounts
       continue
     }
 
-    await upsertHackathon(db, {
+    const input = {
       ...nextEdition(event),
       description: row.description,
       timezone: row.timezone!,
@@ -155,10 +177,28 @@ export async function rollRecurringEvents(db: Db, now: Date): Promise<RollCounts
       // parent's source_id would make the write path update the parent.
       source_id: null,
       source_url: row.source_url,
-      status: 'pending',
-      recurrence: 'annual',
+      status: 'pending' as const,
+      recurrence: 'annual' as const,
       parent_id: id,
-    })
+    }
+
+    // Someone already added the real next edition. Writing the guess through
+    // the write path would match it and overwrite its dates.
+    const existing = await findDuplicate(db, input)
+    if (existing) {
+      await linkToParent(db, existing.id, id)
+      rolled.add(id)
+      counts.linked++
+      continue
+    }
+
+    try {
+      await upsertHackathon(db, input)
+    } catch (error) {
+      if (!isAlreadyRolled(error)) throw error
+      counts.skipped++
+      continue
+    }
 
     rolled.add(id)
     counts.created++

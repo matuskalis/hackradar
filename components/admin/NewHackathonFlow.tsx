@@ -27,8 +27,8 @@ export function NewHackathonFlow() {
 
         {missing.length > 0 && (
           <p className="border-l-4 border-accent bg-surface p-3 text-sm text-muted">
-            Zo stránky sa nepodarilo prečítať {missing.length} polí. Sú zvýraznené
-            nižšie.
+            Niektoré polia sa zo stránky nepodarilo prečítať ({missing.length}). Sú
+            zvýraznené nižšie.
           </p>
         )}
 
