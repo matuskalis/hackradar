@@ -78,7 +78,9 @@ export function toIcs(event: CalendarEvent, siteUrl: string): string {
   if (location) {
     lines.push(`LOCATION:${escapeText(location)}`)
   }
-  lines.push(`URL:${escapeText(event.url ?? siteUrl)}`)
+  // URL is a URI value, not TEXT: escaping a comma or semicolon would corrupt
+  // the link. Line breaks are still dropped so it cannot start a new property.
+  lines.push(`URL:${(event.url ?? siteUrl).replace(/[\r\n]+/g, '')}`)
   lines.push('END:VEVENT', 'END:VCALENDAR')
 
   return lines.map(fold).join('\r\n') + '\r\n'
