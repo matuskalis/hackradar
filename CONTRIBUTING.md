@@ -27,6 +27,7 @@ price_cents,prizes,capacity,organizer_name,source_url,date_confidence
 | `address` | Ulica a číslo, ak sú známe. Bez nich sa pin kreslí ako plocha mesta, nie ako bod. |
 | `themes` | Oddelené `|`, len zo zoznamu v `lib/taxonomy.ts` |
 | `eligibility` | `open`, `students`, `university`, `highschool`, `women` alebo `company` |
+| `registration_url` | Odkaz `http` alebo `https`. Ak sa registrácia robí e-mailom, napíšte to do popisu a pole nechajte prázdne. |
 | `price_cents` | `0` ak zadarmo |
 | `source_url` | Stránka, z ktorej ste údaje prepísali |
 | `date_confidence` | `confirmed` ak je termín na stránke organizátora, `estimated` ak ide o odhad podľa predchádzajúcich ročníkov |
@@ -47,3 +48,7 @@ price_cents,prizes,capacity,organizer_name,source_url,date_confidence
 npm run seed    # vypíše, ktoré riadky neprešli validáciou
 npm test
 ```
+
+Pri novej adrese zavolá seed raz geokóder Photon a výsledok zapíše do
+`scripts/seed/geocodes.json`. Ten súbor patrí do toho istého commitu ako riadok
+v CSV, inak test `seed-data` zlyhá. Kto seed púšťa znova, už sieť nepoužije.

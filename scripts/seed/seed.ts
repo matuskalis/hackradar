@@ -1,50 +1,49 @@
-import { readdirSync, readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { config } from 'dotenv'
-import { parse } from 'csv-parse/sync'
+import { cleanRow, readSeedRows } from './rows'
 
 config({ path: '.env.local' })
 config()
+
+type KnownPoint = { lat: number; lng: number; precision: 'venue' | 'city' }
 
 async function main() {
   const { createAdminClient } = await import('@/lib/db/supabase')
   const { upsertHackathon } = await import('@/lib/hackathons/upsert')
   const { csvRowSchema } = await import('@/lib/validation/schemas')
-  const { geocode } = await import('@/lib/geocode')
+  const { geocode, geocodeCacheKey } = await import('@/lib/geocode')
 
   const db = createAdminClient()
   // Every CSV in the seed folder is loaded, so research batches can be dropped
   // in as separate files. Duplicates across files are merged by upsertHackathon.
   const seedDir = join(process.cwd(), 'scripts/seed')
-  const files = readdirSync(seedDir)
-    .filter((file) => file.endsWith('.csv'))
-    .sort()
-
-  const rows: Record<string, string>[] = files.flatMap(
-    (file) =>
-      parse(readFileSync(join(seedDir, file), 'utf8'), {
-        columns: true,
-        skip_empty_lines: true,
-        trim: true,
-      }) as Record<string, string>[]
-  )
+  const rows = readSeedRows(seedDir)
+  const files = [...new Set(rows.map((row) => row.file))]
   console.log(`seed: reading ${rows.length} rows from ${files.join(', ')}`)
+
+  // Coordinates Photon already returned for these addresses are committed next
+  // to the CSVs, so a fresh clone seeds without touching the network. They are
+  // inserted only where the cache has no entry yet. An address that is not in
+  // the file is looked up live, exactly as before, and recorded at the end.
+  const geocodesPath = join(seedDir, 'geocodes.json')
+  const known: Record<string, KnownPoint> = JSON.parse(readFileSync(geocodesPath, 'utf8'))
+  const { error: preloadError } = await db
+    .from('geocode_cache')
+    .upsert(
+      Object.entries(known).map(([query, point]) => ({ query, ...point })),
+      { onConflict: 'query', ignoreDuplicates: true }
+    )
+  if (preloadError) throw preloadError
+  console.log(`seed: ${Object.keys(known).length} coordinates preloaded from geocodes.json`)
 
   const counts = { inserted: 0, updated: 0, merged: 0, skipped: 0, geocoded: 0 }
   const pending: string[] = []
+  let recorded = 0
 
-  for (const [index, raw] of rows.entries()) {
-    const cleaned = Object.fromEntries(
-      Object.entries(raw).filter(([, value]) => value !== '')
-    )
-
-    // The CSV carries deadlines as bare dates. Read them as the end of that day
-    // in the event's own offset, taken from its start.
-    const deadline = cleaned.registration_deadline
-    if (typeof deadline === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(deadline)) {
-      const offset = String(cleaned.start_at).slice(-6)
-      cleaned.registration_deadline = `${deadline}T23:59:00${offset}`
-    }
+  for (const { file, number, raw } of rows) {
+    const where = `${file} row ${number}`
+    const cleaned = cleanRow(raw)
 
     // Every seeded row goes on the map. Dates we could not confirm on the
     // organiser's page are still listed, and reported below so they can be
@@ -59,7 +58,7 @@ async function main() {
     if (!parsed.success) {
       counts.skipped++
       const fields = Object.keys(parsed.error.flatten().fieldErrors).join(', ')
-      console.warn(`row ${index + 2} (${raw.name ?? '?'}): invalid [${fields}]`)
+      console.warn(`${where} (${raw.name ?? '?'}): invalid [${fields}]`)
       continue
     }
 
@@ -74,10 +73,16 @@ async function main() {
       })
       if (!point) {
         counts.skipped++
-        console.warn(`row ${index + 2} (${row.name}): no coordinates, skipped`)
+        console.warn(`${where} (${row.name}): no coordinates, skipped`)
         continue
       }
       counts.geocoded++
+
+      const key = geocodeCacheKey(row)
+      if (key && !known[key]) {
+        known[key] = { lat: point.lat, lng: point.lng, precision: point.precision }
+        recorded++
+      }
     }
 
     const result = await upsertHackathon(db, {
@@ -98,6 +103,17 @@ async function main() {
     `seed: ${counts.inserted} inserted, ${counts.updated} updated, ` +
       `${counts.merged} merged, ${counts.skipped} skipped, ${counts.geocoded} geocoded`
   )
+
+  if (recorded > 0) {
+    const sorted = Object.fromEntries(
+      Object.entries(known).sort(([a], [b]) => (a < b ? -1 : 1))
+    )
+    writeFileSync(geocodesPath, JSON.stringify(sorted, null, 2) + '\n')
+    console.log(
+      `seed: ${recorded} new addresses were looked up and written to geocodes.json, commit it with the CSV`
+    )
+  }
+
   if (pending.length > 0) {
     console.log(`${pending.length} published rows have an unconfirmed date:`)
     for (const name of pending) console.log(`  - ${name}`)
