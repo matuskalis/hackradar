@@ -17,13 +17,15 @@ docker run --rm -v "$PWD":/work -w /work node:24-slim sh -c '
   NEXT_PUBLIC_SITE_URL=https://example.com npm run build'
 ```
 
+Build prejde aj celkom bez premenných prostredia (`env -u NEXT_PUBLIC_SUPABASE_URL -u NEXT_PUBLIC_SUPABASE_ANON_KEY -u NEXT_PUBLIC_SITE_URL npm run build`): stránky miest a sitemap sa predgenerujú prázdne a doplnia sa pri prvej revalidácii. Pred opravou v `lib/hackathons/repo.ts` to padalo na `supabaseUrl is required`, čo zasiahne každého, kto čerstvý klon hneď zbuilduje, aj nasadenie bez premenných.
+
 Výsledok tesne pred otvorením pull requestu: Node 24.21, npm 11.19, všetky kroky prešli, build vygeneroval 29 stránok. Chyba sa pred opravou reprodukovala rovnakým `npm ci` v tom istom obraze.
 
 ## Testy
 
 | Sada | Počet | Príkaz |
 |---|---|---|
-| Jednotkové | 13 súborov, 132 testov | `npm test` |
+| Jednotkové | 14 súborov, 134 testov | `npm test` |
 | PostGIS a RLS | 19 testov | `npm run test:db` |
 
 Databázové testy potrebujú bežiaci lokálny Supabase a tri premenné, ktoré vypíše `supabase status -o env`:

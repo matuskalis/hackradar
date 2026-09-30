@@ -132,10 +132,10 @@ Moderácia na `/admin` má záložky Na schválenie, Zverejnené a Vyžaduje poz
 
 | Čo | Výsledok | Ako |
 |---|---|---|
-| Jednotkové testy | 13 súborov, 132 testov | `npm test` |
+| Jednotkové testy | 14 súborov, 134 testov | `npm test` |
 | Testy proti PostGIS a RLS | 19 testov | `npm run test:db` s lokálnym Supabase, v CI sa preskočia |
 | CI na čistom Linuxe | install, typecheck, lint, testy, build prejdú | simulované v `node:24-slim`, postup v `docs/verification.md` |
-| Build | 29 stránok | `npm run build`, asi 14 s teplý a 42 s studený |
+| Build | 29 stránok, prejde aj bez jedinej premennej prostredia (stránky miest a sitemap sa vykreslia prázdne) | `npm run build`, asi 14 s teplý a 42 s studený |
 | Kontrast textu | 4,65:1 svetlý, 5,54:1 tmavý (predtým 3,57:1) | meranie v Chromiu, `docs/verification.md` |
 | Pretekanie do šírky | žiadne pri 1440 × 900 a 393 × 660 | domov, detail, formulár, mesto, prihlásenie |
 | JavaScript pri prvom načítaní | 184 KB gzip formulár, asi 450 KB mapa (z toho MapLibre 269 KB) | skripty odkazované z HTML |

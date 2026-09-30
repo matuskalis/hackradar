@@ -132,10 +132,10 @@ Moderation at `/admin` has tabs for Pending, Published and Needs attention. A lo
 
 | What | Result | How |
 |---|---|---|
-| Unit tests | 13 files, 132 tests | `npm test` |
+| Unit tests | 14 files, 134 tests | `npm test` |
 | Tests against PostGIS and RLS | 19 tests | `npm run test:db` with local Supabase, skipped in CI |
 | CI on a clean Linux | install, typecheck, lint, tests, build pass | simulated in `node:24-slim`, steps in `docs/verification.md` |
-| Build | 29 pages | `npm run build`, about 14 s warm and 42 s cold |
+| Build | 29 pages, passes even with no environment variable set (city pages and the sitemap render empty) | `npm run build`, about 14 s warm and 42 s cold |
 | Text contrast | 4.65:1 light, 5.54:1 dark (was 3.57:1) | measured in Chromium, `docs/verification.md` |
 | Horizontal overflow | none at 1440 x 900 and 393 x 660 | home, event, form, city, login |
 | JavaScript on first load | 184 KB gzip form, about 450 KB map pages (MapLibre is 269 KB) | scripts referenced from the HTML |
