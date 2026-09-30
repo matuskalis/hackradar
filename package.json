@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
+    "test:db": "vitest run tests/db",
     "seed": "tsx scripts/seed/seed.ts",
     "db:types": "supabase gen types typescript --local > lib/db/database.types.ts"
   },
