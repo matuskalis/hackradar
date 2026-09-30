@@ -134,7 +134,7 @@ export function HackathonEditForm({ event, missing = [], sourceUrl = null }: Pro
   const box = (name: string) => cn(field, missing.includes(name) && 'border-accent')
   const hint = (name: string) =>
     missing.includes(name) ? (
-      <span className="label text-accent">Nenájdené, doplňte</span>
+      <span className="label text-accent-text">Nenájdené, doplňte</span>
     ) : null
 
   return (
@@ -531,7 +531,7 @@ export function HackathonEditForm({ event, missing = [], sourceUrl = null }: Pro
       <button
         type="submit"
         disabled={pending}
-        className="self-start bg-accent px-5 py-3 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+        className="self-start bg-accent-fill px-5 py-3 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
       >
         {pending ? 'Ukladám…' : creating ? 'Vytvoriť podujatie' : 'Uložiť zmeny'}
       </button>

@@ -17,7 +17,7 @@ export function MarkRecurringButton({ id }: { id: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="bg-accent px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+        className="bg-accent-fill px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
       >
         Opakuje sa každý rok
       </button>

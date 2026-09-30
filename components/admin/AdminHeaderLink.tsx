@@ -32,7 +32,7 @@ export function AdminHeaderLink() {
   return (
     <Link
       href="/admin"
-      className="border border-bar-ink/40 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:border-accent hover:bg-accent"
+      className="border border-bar-ink/40 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:border-accent-fill hover:bg-accent-fill hover:text-accent-ink"
     >
       Administrácia
     </Link>

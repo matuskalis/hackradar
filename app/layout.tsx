@@ -44,7 +44,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             <AdminHeaderLink />
             <Link
               href="/pridat"
-              className="border border-bar-ink/40 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:bg-accent hover:border-accent"
+              className="border border-bar-ink/40 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:border-accent-fill hover:bg-accent-fill hover:text-accent-ink"
             >
               Pridať hackathon
             </Link>

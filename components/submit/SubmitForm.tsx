@@ -287,7 +287,7 @@ export function SubmitForm() {
       <button
         type="submit"
         disabled={state === 'sending'}
-        className="self-start bg-accent px-5 py-3 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+        className="self-start bg-accent-fill px-5 py-3 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
       >
         {state === 'sending' ? 'Odosielam…' : 'Odoslať na schválenie'}
       </button>
