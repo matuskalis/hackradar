@@ -21,7 +21,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'HackRadar — hackathony vo vašom okolí',
+    default: 'HackRadar: hackathony vo vašom okolí',
     template: '%s | HackRadar',
   },
   description:

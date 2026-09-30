@@ -63,7 +63,7 @@ export async function generateMetadata({
     title: event.name!,
     description:
       event.description?.slice(0, 160) ??
-      `${event.name} — ${event.city ?? 'online'}, ${shortDate(event.start_at!, event.timezone)}`,
+      `${event.name}: ${event.city ?? 'online'}, ${shortDate(event.start_at!, event.timezone)}`,
   }
 }
 
