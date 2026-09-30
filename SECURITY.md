@@ -63,6 +63,15 @@ nenačíta**, štýl zostane nedokončený a nevyžiada si ani jednu dlaždicu, 
 ako 6.7.0 pri prvom pokuse v septembri. Upgrade teda nie je možný bez zmeny
 bundlera.
 
+Znova vyskúšané 30. 9. 2026 s 6.11.2 (aktuálne `latest`). `npm audit` je s ňou
+čistý, typy vyžadujú zmenu importu (6.x už nemá predvolený export, treba
+`import * as maplibregl`), no mapa sa pod Turbopackom aj tak nenačíta: stránka
+hlási `Worker failed to load`. Balík je od 6.x len ES modul s vlastným modulovým
+workerom (`maplibre-gl-worker.mjs`), ktorý bundler nerozrieši. Možný obchvat
+(nevyskúšaný): skopírovať súbory workera do `public/` a zavolať `setWorkerUrl`.
+Nezvolil som ho, lebo zraniteľná cesta je v kóde vypnutá a chybu by niesla samotná
+mapa.
+
 Čo sme namiesto toho urobili. Zraniteľná funkcia sa volá pri vykresľovaní HTML
 z cudzieho zdroja. `Popup` ani `setHTML` nepoužívame vôbec, takže jediná cesta
 k nej viedla cez atribúciu, ktorú MapLibre renderuje z JSON štýlu OpenFreeMap.
@@ -72,6 +81,14 @@ HTML.
 
 Zvyškové riziko: knižnica môže mať ďalšie cesty k tej funkcii, ktoré sme
 neobjavili. Sledovať, či niektorá verzia 6.x začne pod Turbopackom fungovať.
+
+### Stav `npm audit` k 30. 9. 2026
+
+Jeden kritický nález, MapLibre 5.x vyššie. Next 16.3.4 bol v
+[GHSA-vcvr-r3jv-pc5j](https://github.com/advisories/GHSA-vcvr-r3jv-pc5j) (vzdialené
+spustenie kódu v `next/og`, ktoré aplikácia nepoužíva) a prešiel na opravenú
+16.3.8. Tranzitívny `brace-expansion` (vývojárske nástroje) sa opravil
+nezlomovým `npm audit fix`.
 
 ### Rate limit sa dá obísť podvrhnutím hlavičky
 

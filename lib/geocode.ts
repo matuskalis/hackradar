@@ -43,20 +43,33 @@ function readPoint(payload: unknown): { lat: number; lng: number } | null {
   return { lng: coords[0], lat: coords[1] }
 }
 
+export type GeocodeParts = {
+  address?: string | null
+  city?: string | null
+  country_code?: string | null
+}
+
+function buildQuery(parts: GeocodeParts): string {
+  return [parts.address, parts.city, parts.country_code]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(', ')
+}
+
+/** The lowercased "street, city, country" string a lookup is cached under, or null when there is nothing to look up. */
+export function geocodeCacheKey(parts: GeocodeParts): string | null {
+  const query = buildQuery(parts)
+  return query ? query.toLowerCase() : null
+}
+
 /**
  * Resolves an address to coordinates, caching every lookup (hits and misses)
  * in the database so repeated seed and import runs stay off the public Photon
  * instance, which throttles heavy use.
  */
-export async function geocode(
-  db: Db,
-  parts: { address?: string | null; city?: string | null; country_code?: string | null }
-): Promise<GeocodeResult | null> {
+export async function geocode(db: Db, parts: GeocodeParts): Promise<GeocodeResult | null> {
   const hasStreet = Boolean(parts.address?.trim())
-  const query = [parts.address, parts.city, parts.country_code]
-    .map((part) => part?.trim())
-    .filter(Boolean)
-    .join(', ')
+  const query = buildQuery(parts)
   if (!query) return null
 
   const cacheKey = query.toLowerCase()

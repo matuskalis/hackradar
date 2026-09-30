@@ -4,6 +4,12 @@ import { listPublishedSlugs } from '@/lib/hackathons/repo'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
+// Without this the sitemap is built once per deploy and never again, so events
+// added by the seed, events that end, and a sitemap that was built while the
+// database was out of reach would all stay wrong until the next deploy. The
+// admin actions also refresh it on demand.
+export const revalidate = 3600
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const events = await listPublishedSlugs()
 

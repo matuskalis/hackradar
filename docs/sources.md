@@ -8,8 +8,8 @@
 > Prieskum zdrojov nižšie zostáva, lebo hovorí, čo sa preverilo a s akým
 > výsledkom. Ak sa k importu niekedy vrátime, netreba to robiť znova.
 
-Stav overený 5. 9. 2026. Pri zmene ktoréhokoľvek zdroja aktualizujte aj fixture
-v `tests/fixtures/` a test v `tests/importers/`.
+Stav overený 5. 9. 2026. Importéry a ich testy sú preč. V `tests/fixtures/` zostali
+len vzorky stránok pre pridanie podľa odkazu.
 
 ## Preverené zdroje
 

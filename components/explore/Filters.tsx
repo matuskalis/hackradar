@@ -36,7 +36,7 @@ function toggle(list: string[], item: string): string[] {
 }
 
 const FORMAT_CLASS: Record<string, string> = {
-  onsite: 'bg-onsite',
+  onsite: 'bg-accent-fill',
   online: 'bg-online',
   hybrid: 'bg-hybrid',
 }
@@ -74,7 +74,7 @@ export function Filters({ value, onChange, radiusDisabled }: Props) {
                 'data py-1.5 text-xs font-medium transition-colors',
                 index > 0 && 'border-l border-line',
                 value.radius === option && !radiusDisabled
-                  ? 'bg-accent text-accent-ink'
+                  ? 'bg-accent-fill text-accent-ink'
                   : 'text-muted hover:text-ink',
                 radiusDisabled && 'cursor-not-allowed'
               )}
@@ -124,7 +124,7 @@ export function Filters({ value, onChange, radiusDisabled }: Props) {
           <span className="label">
             Téma
             {value.themes.length > 0 && (
-              <span className="ml-1.5 text-accent">({value.themes.length})</span>
+              <span className="ml-1.5 text-accent-text">({value.themes.length})</span>
             )}
           </span>
           <span className="label">{themesOpen ? '–' : '+'}</span>
@@ -174,7 +174,7 @@ export function Filters({ value, onChange, radiusDisabled }: Props) {
         <button
           type="button"
           onClick={() => onChange({ ...EMPTY_FILTERS, radius: value.radius })}
-          className="ml-auto text-xs font-semibold uppercase tracking-[0.08em] text-muted underline underline-offset-4 hover:text-accent"
+          className="ml-auto text-xs font-semibold uppercase tracking-[0.08em] text-muted underline underline-offset-4 hover:text-accent-text"
         >
           Zrušiť
         </button>

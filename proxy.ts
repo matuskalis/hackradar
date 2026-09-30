@@ -56,7 +56,7 @@ export async function proxy(request: NextRequest) {
   // A signed-in visitor who is not an admin gets a real 403 rather than a
   // redirect loop. The pages refuse them again on their own.
   if (!allowlist().includes((user.email ?? '').toLowerCase())) {
-    return new NextResponse('403 — tento účet nemá prístup do administrácie.', {
+    return new NextResponse('403: tento účet nemá prístup do administrácie.', {
       status: 403,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })

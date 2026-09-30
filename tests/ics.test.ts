@@ -38,6 +38,16 @@ describe('toIcs', () => {
     expect(ics.split('\r\n').filter((line) => line.startsWith('DESCRIPTION'))).toHaveLength(1)
   })
 
+  it('writes the URL as a URI, not as escaped text', () => {
+    const ics = toIcs({ ...base, url: 'https://example.com/e?tags=a,b;c=d' }, 'https://hackradar.sk')
+    expect(ics).toContain('URL:https://example.com/e?tags=a,b;c=d')
+  })
+
+  it('cannot be made to start a new property through the URL', () => {
+    const ics = toIcs({ ...base, url: 'https://example.com/\r\nATTENDEE:mailto:x@y.z' }, 'https://x.sk')
+    expect(ics.split('\r\n').some((line) => line.startsWith('ATTENDEE'))).toBe(false)
+  })
+
   it('joins the location parts it has', () => {
     const ics = toIcs(base, 'https://hackradar.sk')
     expect(ics).toContain('LOCATION:Univerzitná knižnica\\, Košice')

@@ -72,7 +72,7 @@ export function HackathonList({
         <p className="text-2xl font-bold tracking-tight">Tu zatiaľ nič nie je.</p>
         <p className="mt-2 max-w-[38ch] text-sm text-muted">
           Skúste väčší okruh alebo zrušte filtre. Ak o nejakom hackathone viete,{' '}
-          <Link href="/pridat" className="text-accent underline underline-offset-4">
+          <Link href="/pridat" className="text-accent-text underline underline-offset-4">
             pridajte ho
           </Link>
           .
@@ -133,7 +133,7 @@ export function HackathonList({
           <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
             <Link
               href={`/hackathon/${item.slug}`}
-              className="text-[11px] font-bold uppercase tracking-[0.1em] text-accent underline underline-offset-4"
+              className="text-[11px] font-bold uppercase tracking-[0.1em] text-accent-text underline underline-offset-4"
             >
               Detail
             </Link>

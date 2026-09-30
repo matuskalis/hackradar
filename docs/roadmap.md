@@ -1,5 +1,15 @@
 # HackRadar – roadmapa (2026-09-07)
 
+> **Stav k 30. 9. 2026.** Zvyšok dokumentu je snímka zo 7. 9. 2026, preto už
+> neplatí napríklad „nikde nebeží“ ani zoznam chýb. V kóde je hotové: čas podujatia
+> v jeho pásme v zozname aj na detaile, CI, sitemap bez skončených podujatí,
+> zapisovacia cesta, ktorá neprepisuje moderáciu (1.1), administrácia s magic linkom
+> a polohou ťahaním pinu (1.2), pridanie podľa odkazu bez jazykového modelu (1.3)
+> a opakujúce sa podujatia s dennou úlohou (1.4). Nie je hotové: kontrola čerstvosti
+> (1.5), ukladanie a zobrazenie `date_confidence`, stav „skončilo“ na detaile,
+> hlásenie problémov, účty a upozornenia a jazykové verzie. Nasadenie sa z tohto
+> repozitára overiť nedá.
+
 Poradie etáp nie je zoznam prianí. Vychádza z čísel nameraných v databáze
 a z auditu kódu, obe z 7. 9. 2026.
 

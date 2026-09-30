@@ -67,7 +67,7 @@ export function NewHackathonFlow() {
           <button
             type="submit"
             disabled={pending}
-            className="bg-accent px-5 py-2 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+            className="bg-accent-fill px-5 py-2 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5 disabled:opacity-50"
           >
             {pending ? 'Načítavam…' : 'Načítať'}
           </button>

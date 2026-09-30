@@ -6,8 +6,18 @@
   --color-ink: #0a0a0a;
   --color-muted: #5c5c5c;
   --color-line: #e0e0e0;
+  /* The signal orange. Pins, the wordmark on the dark bar and other graphics
+     use it as is; it is only 3.57:1 against white, so it never carries text
+     on the light ground. */
   --color-accent: #ff3b00;
+  /* Orange fills that carry white text (buttons, badges, selected chips):
+     4.65:1 with --color-accent-ink. */
+  --color-accent-fill: #dd3100;
   --color-accent-ink: #ffffff;
+  /* Orange used as text on the page ground. Same value as the fill on
+     white (4.65:1); the dark theme switches it back to the signal orange,
+     which is 5.5:1 on near-black. */
+  --color-accent-text: #dd3100;
 
   /* The top bar stays dark in both themes; inverting it to white would throw
      away the strongest piece of the identity. */
@@ -35,6 +45,7 @@
     --color-ink: #f5f5f5;
     --color-muted: #9a9a9a;
     --color-line: #2a2a2a;
+    --color-accent-text: #ff3b00;
     --color-bar: #141414;
     --color-bar-ink: #f5f5f5;
   }
@@ -72,7 +83,7 @@
   }
 
   ::selection {
-    background: var(--color-accent);
+    background: var(--color-accent-fill);
     color: var(--color-accent-ink);
   }
 }

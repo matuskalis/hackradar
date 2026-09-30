@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
+    "test:db": "vitest run tests/db",
     "seed": "tsx scripts/seed/seed.ts",
     "db:types": "supabase gen types typescript --local > lib/db/database.types.ts"
   },
@@ -16,7 +18,7 @@
     "@supabase/supabase-js": "^2.115.0",
     "clsx": "^2.1.1",
     "maplibre-gl": "^5.24.0",
-    "next": "16.3.4",
+    "next": "16.3.8",
     "node-html-parser": "^9.0.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -24,6 +26,8 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@emnapi/core": "^1.11.3",
+    "@emnapi/runtime": "^1.11.3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.13.3",
     "@types/react": "^19",
@@ -31,7 +35,7 @@
     "csv-parse": "^7.0.2",
     "dotenv": "^17.4.2",
     "eslint": "^9",
-    "eslint-config-next": "16.3.4",
+    "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5",

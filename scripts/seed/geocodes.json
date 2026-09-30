@@ -1,0 +1,277 @@
+{
+  "al. mickiewicza 30, kraków, pl": {
+    "lat": 50.0656968,
+    "lng": 19.921503,
+    "precision": "venue"
+  },
+  "arsenalstrasse 11, 1030 wien, wien, at": {
+    "lat": 48.1761115,
+    "lng": 16.3953799,
+    "precision": "venue"
+  },
+  "banská bystrica, sk": {
+    "lat": 48.735429,
+    "lng": 19.1457338,
+    "precision": "city"
+  },
+  "bielsko-biała, pl": {
+    "lat": 49.8120785,
+    "lng": 19.0291988,
+    "precision": "city"
+  },
+  "bottova 2/a, 811 09 bratislava, bratislava, sk": {
+    "lat": 48.1433404,
+    "lng": 17.1261656,
+    "precision": "venue"
+  },
+  "bratislava, sk": {
+    "lat": 48.1359085,
+    "lng": 17.1597441,
+    "precision": "city"
+  },
+  "brno, cz": {
+    "lat": 49.1922443,
+    "lng": 16.6113382,
+    "precision": "city"
+  },
+  "budapest, hu": {
+    "lat": 47.481849,
+    "lng": 19.1449053,
+    "precision": "city"
+  },
+  "bydgoszcz, pl": {
+    "lat": 53.1297127,
+    "lng": 18.0294488,
+    "precision": "city"
+  },
+  "decin, cz": {
+    "lat": 50.7824196,
+    "lng": 14.2147221,
+    "precision": "city"
+  },
+  "egyetem utca 10, 8200 veszprem, veszprem, hu": {
+    "lat": 47.0869701,
+    "lng": 17.9089078,
+    "precision": "venue"
+  },
+  "favoritenstraße 9-11, 1040 wien, wien, at": {
+    "lat": 48.1950227,
+    "lng": 16.3700926,
+    "precision": "venue"
+  },
+  "gdańsk, pl": {
+    "lat": 54.4288032,
+    "lng": 18.798327,
+    "precision": "city"
+  },
+  "graz, at": {
+    "lat": 47.0708678,
+    "lng": 15.4382786,
+    "precision": "city"
+  },
+  "hálova 16, bratislava, sk": {
+    "lat": 48.1208908,
+    "lng": 17.1046517,
+    "precision": "venue"
+  },
+  "ilkovicova 2, 841 04 bratislava, bratislava, sk": {
+    "lat": 48.1526802,
+    "lng": 17.0756082,
+    "precision": "venue"
+  },
+  "jasionka, pl": {
+    "lat": 51.9498281,
+    "lng": 19.3907679,
+    "precision": "city"
+  },
+  "karl-farkas-gasse 22, 1030 wien, wien, at": {
+    "lat": 48.1881549,
+    "lng": 16.4037697,
+    "precision": "venue"
+  },
+  "katowice, pl": {
+    "lat": 50.2137315,
+    "lng": 19.0058848,
+    "precision": "city"
+  },
+  "kielce, pl": {
+    "lat": 50.8540285,
+    "lng": 20.6099157,
+    "precision": "city"
+  },
+  "komunardu 1634/44, 170 00 praha 7, praha, cz": {
+    "lat": 50.1069206,
+    "lng": 14.4507593,
+    "precision": "venue"
+  },
+  "konyves kalman krt. 12-14, 1097 budapest, budapest, hu": {
+    "lat": 47.4708783,
+    "lng": 19.0841386,
+    "precision": "venue"
+  },
+  "kosice, sk": {
+    "lat": 48.697265,
+    "lng": 21.2644253,
+    "precision": "city"
+  },
+  "kovářova 4, praha, cz": {
+    "lat": 50.0490848,
+    "lng": 14.3170585,
+    "precision": "venue"
+  },
+  "krakow, pl": {
+    "lat": 50.0619474,
+    "lng": 19.9368564,
+    "precision": "city"
+  },
+  "kraków, pl": {
+    "lat": 50.0619474,
+    "lng": 19.9368564,
+    "precision": "city"
+  },
+  "královská obora 233, praha, praha, cz": {
+    "lat": 50.1055042,
+    "lng": 14.4275128,
+    "precision": "venue"
+  },
+  "kundmanngasse 21, 1030 wien, wien, at": {
+    "lat": 48.2031499,
+    "lng": 16.3939219,
+    "precision": "venue"
+  },
+  "legionárska 10, bratislava, sk": {
+    "lat": 48.1561292,
+    "lng": 17.123206,
+    "precision": "venue"
+  },
+  "nowowiejska 15/19, warszawa, pl": {
+    "lat": 52.2189917,
+    "lng": 21.011346,
+    "precision": "venue"
+  },
+  "obere donaustrasse 95, 1020 wien, wien, at": {
+    "lat": 48.2135962,
+    "lng": 16.3766853,
+    "precision": "venue"
+  },
+  "olomouc, cz": {
+    "lat": 49.5940567,
+    "lng": 17.251143,
+    "precision": "city"
+  },
+  "partizánske, sk": {
+    "lat": 48.6265223,
+    "lng": 18.371762,
+    "precision": "city"
+  },
+  "pekařská 664/53, brno, cz": {
+    "lat": 49.1913064,
+    "lng": 16.5987549,
+    "precision": "venue"
+  },
+  "piotrowo 2, 61-138 poznań, poznań, pl": {
+    "lat": 52.4033067,
+    "lng": 16.9488392,
+    "precision": "venue"
+  },
+  "plzeň, cz": {
+    "lat": 49.7477415,
+    "lng": 13.3775249,
+    "precision": "city"
+  },
+  "praha, cz": {
+    "lat": 50.0874654,
+    "lng": 14.4212535,
+    "precision": "city"
+  },
+  "radom, pl": {
+    "lat": 51.416727,
+    "lng": 21.1607392,
+    "precision": "city"
+  },
+  "rzeszów, pl": {
+    "lat": 50.013319,
+    "lng": 22.0161677,
+    "precision": "city"
+  },
+  "spalena 76/14, 110 00 praha 1, praha, cz": {
+    "lat": 50.0805831,
+    "lng": 14.4199332,
+    "precision": "venue"
+  },
+  "st. poelten, at": {
+    "lat": 48.2043985,
+    "lng": 15.6229118,
+    "precision": "city"
+  },
+  "szeged, hu": {
+    "lat": 46.2546312,
+    "lng": 20.1486016,
+    "precision": "city"
+  },
+  "toruń, pl": {
+    "lat": 53.0102721,
+    "lng": 18.6048094,
+    "precision": "city"
+  },
+  "trnava, sk": {
+    "lat": 48.3767652,
+    "lng": 17.5858175,
+    "precision": "city"
+  },
+  "ul. projektowa 4, 20-209 lublin, lublin, pl": {
+    "lat": 51.2455222,
+    "lng": 22.6105588,
+    "precision": "venue"
+  },
+  "ul. witolda budryka 4, krakow, krakow, pl": {
+    "lat": 50.0680307,
+    "lng": 19.9082395,
+    "precision": "venue"
+  },
+  "ul. zabłocie 20, 30-701 kraków, kraków, pl": {
+    "lat": 50.049853,
+    "lng": 19.9663418,
+    "precision": "venue"
+  },
+  "ul. zakopianska 9, 30-418 krakow, krakow, pl": {
+    "lat": 50.0157091,
+    "lng": 19.9318925,
+    "precision": "venue"
+  },
+  "ul. zakopiańska 9, 30-418 kraków, kraków, pl": {
+    "lat": 50.0157091,
+    "lng": 19.9318925,
+    "precision": "venue"
+  },
+  "warszawa, pl": {
+    "lat": 52.2319581,
+    "lng": 21.0067249,
+    "precision": "city"
+  },
+  "wien, at": {
+    "lat": 48.2083537,
+    "lng": 16.3725042,
+    "precision": "city"
+  },
+  "wita stwosza 53, gdańsk, pl": {
+    "lat": 54.3970935,
+    "lng": 18.5744888,
+    "precision": "venue"
+  },
+  "witolda budryka 4, kraków, pl": {
+    "lat": 50.0680307,
+    "lng": 19.9082395,
+    "precision": "venue"
+  },
+  "wroclaw, pl": {
+    "lat": 51.112118,
+    "lng": 17.0639117,
+    "precision": "city"
+  },
+  "žilina, sk": {
+    "lat": 49.2234674,
+    "lng": 18.7393139,
+    "precision": "city"
+  }
+}

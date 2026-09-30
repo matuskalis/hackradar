@@ -206,7 +206,7 @@ export function MapExplorer({ initialCenter, initialLabel, initialItems = [] }: 
           </span>
           <Link
             href="/pridat"
-            className="text-[11px] font-bold uppercase tracking-[0.1em] text-accent underline underline-offset-4"
+            className="text-[11px] font-bold uppercase tracking-[0.1em] text-accent-text underline underline-offset-4"
           >
             Pridať
           </Link>

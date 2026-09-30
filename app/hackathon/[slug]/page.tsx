@@ -9,7 +9,7 @@ import { ELIGIBILITY, FORMATS, THEMES } from '@/lib/taxonomy'
 import type { EligibilitySlug, ThemeSlug } from '@/lib/taxonomy'
 
 const FORMAT_BG: Record<string, string> = {
-  onsite: 'bg-onsite',
+  onsite: 'bg-accent-fill',
   online: 'bg-online',
   hybrid: 'bg-hybrid',
 }
@@ -63,7 +63,7 @@ export async function generateMetadata({
     title: event.name!,
     description:
       event.description?.slice(0, 160) ??
-      `${event.name} — ${event.city ?? 'online'}, ${shortDate(event.start_at!, event.timezone)}`,
+      `${event.name}: ${event.city ?? 'online'}, ${shortDate(event.start_at!, event.timezone)}`,
   }
 }
 
@@ -143,7 +143,7 @@ export default async function HackathonPage({ params }: PageProps<'/hackathon/[s
 
       <Link
         href="/"
-        className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted hover:text-accent"
+        className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted hover:text-accent-text"
       >
         ← Späť na mapu
       </Link>
@@ -172,7 +172,7 @@ export default async function HackathonPage({ params }: PageProps<'/hackathon/[s
       </h1>
 
       {left != null && left >= 0 && (
-        <p className="mt-4 inline-block bg-accent px-3 py-1.5 text-sm font-bold uppercase tracking-[0.08em] text-accent-ink">
+        <p className="mt-4 inline-block bg-accent-fill px-3 py-1.5 text-sm font-bold uppercase tracking-[0.08em] text-accent-ink">
           {left === 0
             ? 'Registrácia končí dnes'
             : left === 1
@@ -227,14 +227,14 @@ export default async function HackathonPage({ params }: PageProps<'/hackathon/[s
             href={event.registration_url ?? event.url!}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-accent px-5 py-3 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5"
+            className="bg-accent-fill px-5 py-3 text-sm font-bold uppercase tracking-[0.1em] text-accent-ink transition-transform hover:-translate-y-0.5"
           >
             Registrovať sa
           </a>
         )}
         <a
           href={`/api/hackathons/${event.slug}/ics`}
-          className="text-[11px] font-bold uppercase tracking-[0.1em] underline underline-offset-4 hover:text-accent"
+          className="text-[11px] font-bold uppercase tracking-[0.1em] underline underline-offset-4 hover:text-accent-text"
         >
           Pridať do kalendára
         </a>

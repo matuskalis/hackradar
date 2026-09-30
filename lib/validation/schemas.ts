@@ -9,6 +9,28 @@ const recurrenceEnum = z.enum(['none', 'annual'])
 
 const isoDateTime = z.iso.datetime({ offset: true })
 
+/**
+ * Pages format every date with Intl.DateTimeFormat, which throws a RangeError
+ * for a zone name it does not know. A single such row would break each page
+ * that lists it, the admin queue included, so the name is checked on the way in.
+ */
+const ianaTimeZone = z
+  .string()
+  .trim()
+  .min(3)
+  .max(64)
+  .refine(
+    (zone) => {
+      try {
+        new Intl.DateTimeFormat('en', { timeZone: zone })
+        return true
+      } catch {
+        return false
+      }
+    },
+    { message: 'unknown time zone' }
+  )
+
 /** `z.url()` alone accepts `javascript:` and `data:`; these end up in an href. */
 const httpUrl = z.url({ protocol: /^https?$/ })
 
@@ -76,7 +98,7 @@ export const submitSchema = z
     description: z.string().trim().max(4000).optional(),
     start_at: isoDateTime,
     end_at: isoDateTime,
-    timezone: z.string().trim().min(3).max(64),
+    timezone: ianaTimeZone,
     format: formatEnum,
     venue_name: z.string().trim().max(160).optional(),
     address: z.string().trim().max(240).optional(),
@@ -122,7 +144,7 @@ export const adminEditSchema = z
     description: nullable(z.string().trim().max(4000)),
     start_at: isoDateTime,
     end_at: isoDateTime,
-    timezone: z.string().trim().min(3).max(64),
+    timezone: ianaTimeZone,
     format: formatEnum,
     venue_name: nullable(z.string().trim().max(160)),
     address: nullable(z.string().trim().max(240)),
@@ -161,7 +183,7 @@ export const csvRowSchema = z
     description: z.string().trim().optional(),
     start_at: isoDateTime,
     end_at: isoDateTime,
-    timezone: z.string().trim().min(3),
+    timezone: ianaTimeZone,
     format: formatEnum,
     venue_name: z.string().trim().optional(),
     address: z.string().trim().optional(),

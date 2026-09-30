@@ -91,7 +91,7 @@ export function CitySearch({ onPick }: Props) {
                 onMouseEnter={() => setActive(index)}
                 onClick={() => pick(place)}
                 className={`flex w-full flex-col items-start border-b border-line px-3 py-2 text-left text-sm last:border-b-0 ${
-                  index === active ? 'bg-accent text-accent-ink' : 'bg-ground'
+                  index === active ? 'bg-accent-fill text-accent-ink' : 'bg-ground'
                 }`}
               >
                 <span className="font-semibold">{place.name}</span>
