@@ -132,17 +132,19 @@ Moderation at `/admin` has tabs for Pending, Published and Needs attention. A lo
 
 | What | Result | How |
 |---|---|---|
-| Unit tests | 14 files, 134 tests | `npm test` |
+| Unit tests | 14 files, 145 tests | `npm test` |
 | Tests against PostGIS and RLS | 19 tests | `npm run test:db` with local Supabase, skipped in CI |
 | CI on a clean Linux | install, typecheck, lint, tests, build pass | simulated in `node:24-slim`, steps in `docs/verification.md` |
-| Build | 29 pages, passes even with no environment variable set (city pages and the sitemap render empty) | `npm run build`, about 14 s warm and 42 s cold |
-| Text contrast | 4.65:1 light, 5.54:1 dark (was 3.57:1) | measured in Chromium, `docs/verification.md` |
+| Build | 29 pages, passes even with no environment variables, except a Vercel production deployment (see below the table) | `npm run build`, about 14 s warm and 42 s cold |
+| Contrast of orange text | light 4.65:1, dark 5.54:1 on the page background and 5.16:1 on the surface and the header (was 3.57:1) | measured in Chromium and computed from the colours, `docs/verification.md` |
 | Horizontal overflow | none at 1440 x 900 and 393 x 660 | home, event, form, city, login |
 | JavaScript on first load | 184 KB gzip form, about 450 KB map pages (MapLibre is 269 KB) | scripts referenced from the HTML |
 | API latency (local, median of 30) | 59 ms radius, 61 ms box, 18 ms event page, 4 ms city page | `curl`, local build and local Supabase |
 | `npm audit` | 1 critical finding (MapLibre 5.x, mitigated), was 3 | `npm audit` |
 
 The latencies come from a busy laptop, read them as orders of magnitude. The security headers, the form's origin check and the 401 without `CRON_SECRET` were checked on the running app.
+
+**Build without Supabase.** Outside a Vercel production deployment (a fresh clone, CI, a preview) the build succeeds without `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. The city pages and `sitemap.xml` then render without events and are regenerated at most once an hour (`revalidate = 3600`), so they fill in once a database is available at a later regeneration. A Vercel production deployment (`VERCEL_ENV=production`) without those two variables fails, so an empty site is never deployed. The check depends only on `VERCEL_ENV`, which Vercel provides while the project's system environment variables are enabled. Other hosts never trigger it.
 
 ## Tests
 

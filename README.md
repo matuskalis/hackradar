@@ -132,17 +132,19 @@ Moderácia na `/admin` má záložky Na schválenie, Zverejnené a Vyžaduje poz
 
 | Čo | Výsledok | Ako |
 |---|---|---|
-| Jednotkové testy | 14 súborov, 134 testov | `npm test` |
+| Jednotkové testy | 14 súborov, 145 testov | `npm test` |
 | Testy proti PostGIS a RLS | 19 testov | `npm run test:db` s lokálnym Supabase, v CI sa preskočia |
 | CI na čistom Linuxe | install, typecheck, lint, testy, build prejdú | simulované v `node:24-slim`, postup v `docs/verification.md` |
-| Build | 29 stránok, prejde aj bez jedinej premennej prostredia (stránky miest a sitemap sa vykreslia prázdne) | `npm run build`, asi 14 s teplý a 42 s studený |
-| Kontrast textu | 4,65:1 svetlý, 5,54:1 tmavý (predtým 3,57:1) | meranie v Chromiu, `docs/verification.md` |
+| Build | 29 stránok, prejde aj bez premenných prostredia, okrem produkčného nasadenia vo Verceli (pozri pod tabuľkou) | `npm run build`, asi 14 s teplý a 42 s studený |
+| Kontrast oranžového textu | svetlý 4,65:1, tmavý 5,54:1 na pozadí stránky a 5,16:1 na povrchu a v hlavičke (predtým 3,57:1) | meranie v Chromiu a výpočet z farieb, `docs/verification.md` |
 | Pretekanie do šírky | žiadne pri 1440 × 900 a 393 × 660 | domov, detail, formulár, mesto, prihlásenie |
 | JavaScript pri prvom načítaní | 184 KB gzip formulár, asi 450 KB mapa (z toho MapLibre 269 KB) | skripty odkazované z HTML |
 | Odozva API (lokálne, medián z 30) | 59 ms polomer, 61 ms výrez, 18 ms detail, 4 ms stránka mesta | `curl`, lokálny build a lokálny Supabase |
 | `npm audit` | 1 kritický nález (MapLibre 5.x, ošetrený), predtým 3 | `npm audit` |
 
 Odozvy sú z zaťaženého notebooku, berte ich ako rád veľkosti. Hlavička bezpečnosti, overenie pôvodu formulára a 401 bez `CRON_SECRET` boli overené na bežiacej aplikácii.
+
+**Build bez Supabase.** Mimo produkčného nasadenia vo Verceli (čistý klon, CI, náhľad) build prejde aj bez `NEXT_PUBLIC_SUPABASE_URL` a `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Stránky miest a `sitemap.xml` sa vtedy vykreslia bez podujatí a generujú sa znova najviac raz za hodinu (`revalidate = 3600`), takže sa doplnia, keď je pri ďalšej generácii k dispozícii databáza. Produkčné nasadenie vo Verceli (`VERCEL_ENV=production`) bez týchto dvoch premenných zlyhá, aby sa nenasadil prázdny web. Kontrola stojí len na `VERCEL_ENV`, ktorú Vercel dáva, keď je v projekte zapnutý prístup k systémovým premenným. Iný hostiteľ ju nespustí.
 
 ## Testy
 

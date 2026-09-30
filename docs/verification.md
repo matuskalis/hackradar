@@ -17,15 +17,30 @@ docker run --rm -v "$PWD":/work -w /work node:24-slim sh -c '
   NEXT_PUBLIC_SITE_URL=https://example.com npm run build'
 ```
 
-Build prejde aj celkom bez premenných prostredia (`env -u NEXT_PUBLIC_SUPABASE_URL -u NEXT_PUBLIC_SUPABASE_ANON_KEY -u NEXT_PUBLIC_SITE_URL npm run build`): stránky miest a sitemap sa predgenerujú prázdne a doplnia sa pri prvej revalidácii. Pred opravou v `lib/hackathons/repo.ts` to padalo na `supabaseUrl is required`, čo zasiahne každého, kto čerstvý klon hneď zbuilduje, aj nasadenie bez premenných.
+Posledný beh na čistom klone: Node 24.21, npm 11.19, všetky kroky prešli, build vygeneroval 29 stránok. `npm ci` pred opravou zlyhávalo rovnako v tom istom obraze.
 
-Výsledok tesne pred otvorením pull requestu: Node 24.21, npm 11.19, všetky kroky prešli, build vygeneroval 29 stránok. Chyba sa pred opravou reprodukovala rovnakým `npm ci` v tom istom obraze.
+### Build bez Supabase a vo Verceli
+
+Stránky miest a `sitemap.xml` sa predgenerujú pri builde a potom generujú znova najviac raz za hodinu (`revalidate = 3600`). Sitemap to predtým nemala: v `.next/prerender-manifest.json` mala `initialRevalidateSeconds: false`, teda sa stavala raz za nasadenie a podujatia pridané seedom, skončené podujatia aj sitemap postavená pri nedostupnej databáze zostali zlé do ďalšieho nasadenia (akcie v administrácii ju obnovujú samy). Po oprave je tam `3600`, rovnako ako pri stránkach miest.
+
+Čítanie dát pri builde (`lib/hackathons/repo.ts`) toleruje chýbajúci alebo nedostupný Supabase, takže čistý klon, CI aj náhľad vo Verceli prejdú. Pred opravou to padalo na `supabaseUrl is required`. Produkčné nasadenie vo Verceli bez `NEXT_PUBLIC_SUPABASE_URL` alebo `NEXT_PUBLIC_SUPABASE_ANON_KEY` však zlyhať má, inak by sa nasadil prázdny web, ktorý vyzerá zdravo. Kontrola (`assertDatabaseConfiguredForProduction`) sa pozerá len na `VERCEL_ENV`. Vercel ju podľa dokumentácie (strana aktualizovaná 15. 7. 2026, čítaná 30. 9. 2026) dáva pri builde aj za behu, ak je v projekte zapnutý prístup k systémovým premenným. Pri vypnutom prístupe alebo u iného hostiteľa sa kontrola nespustí.
+
+Štyri buildy, každý v čistom prostredí (`env -i`) a len so zástupnými hodnotami:
+
+| Prostredie buildu | Premenné Supabase | Výsledok |
+|---|---|---|
+| bez `VERCEL_ENV` (čistý klon, CI) | žiadne | prejde, `BUILD_EXIT=0` |
+| `VERCEL_ENV=preview` | žiadne | prejde, `BUILD_EXIT=0` |
+| `VERCEL_ENV=production` | zástupné, databáza nedostupná | prejde, `BUILD_EXIT=0` |
+| `VERCEL_ENV=production` | žiadne | zlyhá, `BUILD_EXIT=1`: `Production build without Supabase: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY for the Production environment.` |
+
+Doplnia sa len stránky, ktoré chýbali pre nedostupnú databázu. Bez premenných sa nič nedoplní, kým sa nenastavia. Kombinácie prostredia a premenných kryjú jednotkové testy v `tests/repo-build-time.test.ts`.
 
 ## Testy
 
 | Sada | Počet | Príkaz |
 |---|---|---|
-| Jednotkové | 14 súborov, 134 testov | `npm test` |
+| Jednotkové | 14 súborov, 145 testov | `npm test` |
 | PostGIS a RLS | 19 testov | `npm run test:db` |
 
 Databázové testy potrebujú bežiaci lokálny Supabase a tri premenné, ktoré vypíše `supabase status -o env`:
@@ -46,10 +61,13 @@ Meraný v headless Chromiu z vypočítaných štýlov: farba textu zložená cez
 | Prvok | Predtým | Potom |
 |---|---|---|
 | Odkaz Detail a Pridať (oranžový text na bielej) | 3,57:1 | 4,65:1 |
-| Rovnaké odkazy v tmavom režime | 5,54:1 | 5,54:1 |
+| Rovnaké odkazy v tmavom režime, na pozadí stránky (#0a0a0a) | 5,54:1 | 5,54:1 |
+| Oranžový text v tmavom režime na povrchu a v hlavičke (#141414), napríklad logo | 5,16:1 | 5,16:1 |
 | Tlačidlá Registrovať sa a Odoslať na schválenie (biely text na oranžovej) | 3,57:1 | 4,65:1 |
 | Odznak s odpočtom registrácie, vybraný polomer a formát | 3,57:1 | 4,65:1 |
 | Tlmený text, nadpisy, dáta | 6,69:1 až 19,8:1 | bez zmeny |
+
+Čísla 4,65:1 a 5,54:1 sú namerané v prehliadači. Hodnota 5,16:1 je vypočítaná zo samotných farieb (`#ff3b00` na `#141414`), v prehliadači sa nemerala.
 
 Pretekanie do šírky sa meralo porovnaním `scrollWidth` s šírkou okna pri 1440 × 900 a 393 × 660 (domov, detail, formulár, mesto, prihlásenie): nikde.
 
