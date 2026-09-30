@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  adminEditSchema,
   csvRowSchema,
   hackathonsQuerySchema,
   submitSchema,
@@ -140,5 +141,36 @@ describe('event URLs', () => {
   it('accepts http and https', () => {
     expect(submitSchema.safeParse({ ...validSubmit, url: 'http://example.sk/' }).success).toBe(true)
     expect(submitSchema.safeParse({ ...validSubmit, url: 'HTTPS://example.sk/' }).success).toBe(true)
+  })
+})
+
+describe('time zones', () => {
+  // Pages format dates with Intl.DateTimeFormat, which throws a RangeError for a
+  // zone it does not know. One such row would break every page that lists it,
+  // including the admin moderation queue.
+  it.each(['Europe/Bratislava', 'Europe/Warsaw', 'UTC'])('accepts %s', (timezone) => {
+    expect(submitSchema.safeParse({ ...validSubmit, timezone }).success).toBe(true)
+  })
+
+  it.each(['Foo/Bar', 'Europe/Bratislav', 'not a zone'])('rejects %s on every write path', (timezone) => {
+    expect(submitSchema.safeParse({ ...validSubmit, timezone }).success).toBe(false)
+
+    const csv = {
+      name: 'Hack Kosice',
+      start_at: '2027-04-16T09:00:00+02:00',
+      end_at: '2027-04-17T18:00:00+02:00',
+      timezone,
+      format: 'online',
+    }
+    expect(csvRowSchema.safeParse(csv).success).toBe(false)
+
+    const admin = {
+      name: 'Hack Kosice',
+      start_at: '2027-04-16T09:00:00+02:00',
+      end_at: '2027-04-17T18:00:00+02:00',
+      timezone,
+      format: 'online',
+    }
+    expect(adminEditSchema.safeParse(admin).success).toBe(false)
   })
 })
